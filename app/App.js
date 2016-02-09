@@ -1,19 +1,22 @@
-import controller from './controller.js';
+var ac = require('ve-api-check');
+import controller from './cerebral/controller.js';
 import React from 'react';
-import ReactDOM from 'react-dom';
-import {Container} from 'cerebral-react';
+import {Container} from 'cerebral-view-react';
 import SequenceEditor from './SequenceEditor.js';
+import injectTapEventPlugin from 'react-tap-event-plugin';
 
-const app = document.createElement('div');
-document.body.appendChild(app);
+injectTapEventPlugin();
 
-ReactDOM.render(<Container controller={controller} app={SequenceEditor}/>, app);
-
-//tnrtodo: add back this functionality to watch for before unload
-// window.addEventListener('beforeunload', function(e) {
-//  var confirmationMessage = 'It looks like you have been editing something.';
-//  confirmationMessage += 'If you leave before saving, your changes will be lost.';
-
-//  (e || window.event).returnValue = confirmationMessage; //Gecko + IE
-//  return confirmationMessage; //Gecko + Webkit, Safari, Chrome etc.
-// });
+module.exports = function (options) {
+	ac.throw(ac.shape({
+		state: ac.object,
+		actions: ac.object
+	}),options)
+	var cerebral = controller(options)
+	return {
+		Editor: (<Container controller={cerebral}>
+		    <SequenceEditor/>
+		  </Container>),
+		controller: cerebral
+	};
+}

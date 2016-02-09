@@ -6,9 +6,16 @@ var bindGlobalPlugin = require('combokeys/plugins/global-bind');
 
 var RowView = require('./RowView');
 var MapView = require('./MapView');
+var CircularView = require('./CircularView');
 
 var Clipboard = require('./Clipboard');
-import {Decorator as Cerebral} from 'cerebral-react';
+import {Decorator as Cerebral} from 'cerebral-view-react';
+
+import ToolBar from './ToolBar';
+import StatusBar from './StatusBar';
+import AnnotationTable from './AnnotationTable';
+
+import styles from './sequence-editor.css';
 
 @Cerebral({
     sequenceLength: ['sequenceLength'],
@@ -20,6 +27,12 @@ import {Decorator as Cerebral} from 'cerebral-react';
     sequenceData: ['sequenceData'],
     selectionLayer: ['selectionLayer'],
     clipboardData: ['clipboardData'],
+    showCircular: ['showCircular'],
+    showLinear: ['showLinear'],
+    showRow: ['showRow'],
+    showSidebar: ['showSidebar'],
+    cutsites: ['cutsites'],
+    orfData: ['orfData']
 })
 @propTypes({
     sequenceLength: PropTypes.number.isRequired,
@@ -31,6 +44,9 @@ import {Decorator as Cerebral} from 'cerebral-react';
     sequenceData: PropTypes.object.isRequired,
     selectionLayer: PropTypes.object.isRequired,
     clipboardData: PropTypes.object.isRequired,
+    showCircular: PropTypes.bool.isRequired,
+    showLinear: PropTypes.bool.isRequired,
+    showRow: PropTypes.bool.isRequired
 })
 class SequenceEditor extends React.Component {
     componentDidMount() {
@@ -38,6 +54,7 @@ class SequenceEditor extends React.Component {
             sequenceDataInserted,
             backspacePressed,
             selectAll,
+            selectInverse,
         } = this.props.signals;
         var self = this;
         combokeys = new Combokeys(document.documentElement);
@@ -47,7 +64,7 @@ class SequenceEditor extends React.Component {
         //bind a bunch of keyboard shortcuts we're interested in catching
         //we're using the "mousetrap" library (available thru npm: https://www.npmjs.com/package/br-mousetrap)
         //documentation: https://craig.is/killing/mice
-        combokeys.bind(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', ], function(event) { // Handle shortcut
+        combokeys.bind(['a', 'c', 'g', 't'], function(event) { // type in bases
             sequenceDataInserted({newSequenceData: {sequence: String.fromCharCode(event.charCode)}});
         });
         combokeys.bind(['left','shift+left'] , function(event) { // Handle shortcut
@@ -91,23 +108,26 @@ class SequenceEditor extends React.Component {
             selectAll();
             event.stopPropagation();
         });
+        combokeys.bindGlobal('command+ctrl+i', function(event) { // Handle shortcut
+            selectInverse();
+            event.stopPropagation();
+        });
     }
-
+    // copy and paste events are handled by a listener in the DOM element as listed below
     handlePaste(event) {
-      var {
+        var {
             pasteSequenceString,
         } = this.props.signals;
-        event.clipboardData.items[0].getAsString(function(string) {
-            pasteSequenceString(string);
+        event.clipboardData.items[0].getAsString(function(clipboardString) {
+            pasteSequenceString({sequenceString:clipboardString});
         });
     }
 
     handleCopy() {
-      var {
-            copySelection,
+        var {
+            selectionCopied,
         } = this.props.signals;
-        copySelection();
-        // this.props.selectedSequenceString
+        selectionCopied();
     }
 
     componentWillUnmount() {
@@ -115,198 +135,71 @@ class SequenceEditor extends React.Component {
         // Remove any Mousetrap bindings before unmounting.detach()
         combokeys.detach()
     }
+    render() {
+        var {
+            selectedSequenceString,
+            sequenceData,
+            showCircular,
+            showRow,
+            showSidebar,
+            cutsites,
+            orfData
+        } = this.props;
 
-    handleEditorClick(updatedCaretPos, event) {
-        //if cursor position is different than the original position, reset the position and clear the selection
-        // console.log('onclick!!');
-        // var bp = this.getNearestCursorPositionToMouseEvent(event);
-        if (this.editorBeingDragged) {
-            //do nothing because the click was triggered by a drag event
-        } else {
-            this.props.signals.editorClicked({
-                shiftHeld: event.shiftKey,
-                type: 'editorClick',
-                updatedCaretPos: updatedCaretPos
-            })
+        var table;
+
+        if (showSidebar === 'features') {
+            table = (
+                <AnnotationTable
+                   data={sequenceData.features}
+                   />
+            );
+        } else if (showSidebar === 'cutsites') {
+            table = (
+                <AnnotationTable
+                   data={cutsites}
+                   />
+            );
+        } else if (showSidebar === 'orfs') {
+            table = (
+                <AnnotationTable
+                   data={orfData}
+                   />
+            );
         }
 
+        return (
+            <div ref="sequenceEditor" className={styles.app}>
+                <Clipboard
+                    value={selectedSequenceString}
+                    onCopy={this.handleCopy.bind(this)}
+                    onPaste={this.handlePaste.bind(this)}
+                />
+
+                <div className={styles.head}>
+                    <ToolBar />
+                </div>
+
+                <div className={styles.content}>
+                    <div className={styles.sideBarSlot} style={(table) ? {} : {display: 'none'}}>
+                      {table}
+                    </div>
+
+                    <div className={styles.circularViewSlot} style={(showCircular) ? {} : {display: 'none'}}>
+                        <CircularView />
+                    </div>
+
+                    <div className={styles.rowViewSlot} style={(showRow) ? {} : {display: 'none'}}>
+                        <RowView />
+                    </div>
+                </div>
+
+                <div className={styles.foot}>
+                    <StatusBar />
+                </div>
+            </div>
+        );
     }
-
-    handleEditorDrag(caretPosition) {
-      var {
-            setCaretPosition,
-            setSelectionLayer
-        } = this.props.signals;
-        //note this method relies on variables that are set in the handleEditorDragStart method!
-        this.editorBeingDragged = true;
-        if (caretPosition === this.fixedCaretPositionOnEditorDragStart) {
-            setCaretPosition(caretPosition);
-            setSelectionLayer(false);
-        } else {
-            var newSelectionLayer;
-            if (this.fixedCaretPositionOnEditorDragStartType === 'start') {
-                newSelectionLayer = {
-                    start: this.fixedCaretPositionOnEditorDragStart,
-                    end: caretPosition - 1,
-                    cursorAtEnd: true,
-                };
-            } else if (this.fixedCaretPositionOnEditorDragStartType === 'end') {
-                newSelectionLayer = {
-                    start: caretPosition,
-                    end: this.fixedCaretPositionOnEditorDragStart - 1,
-                    cursorAtEnd: false,
-                };
-            } else {
-                if (caretPosition > this.fixedCaretPositionOnEditorDragStart) {
-                    newSelectionLayer = {
-                        start: this.fixedCaretPositionOnEditorDragStart,
-                        end: caretPosition - 1,
-                        cursorAtEnd: true,
-                    };
-                } else {
-                    newSelectionLayer = {
-                        start: caretPosition,
-                        end: this.fixedCaretPositionOnEditorDragStart - 1,
-                        cursorAtEnd: false,
-                    };
-                }
-            }
-            setSelectionLayer({selectionLayer: newSelectionLayer});
-        }
-    }
-
-    handleEditorDragStart(caretPosition, event) {
-      var {selectionLayer} = this.props;
-        // var caretPosition = this.getNearestCursorPositionToMouseEvent(event);
-        if (event.target.className === "cursor" && selectionLayer.selected) {
-            // this.circularSelectionOnEditorDragStart = (selectionLayer.start > selectionLayer.end);
-            if (selectionLayer.start === caretPosition) {
-                this.fixedCaretPositionOnEditorDragStart = selectionLayer.end + 1;
-                this.fixedCaretPositionOnEditorDragStartType = 'end';
-
-                //plus one because the cursor position will be 1 more than the selectionLayer.end
-                //imagine selection from
-                //0 1 2  <--possible cursor positions
-                // A T G
-                //if A is selected, selection.start = 0, selection.end = 0
-                //so the caretPosition for the end of the selection is 1!
-                //which is selection.end+1
-            } else {
-                this.fixedCaretPositionOnEditorDragStart = selectionLayer.start;
-                this.fixedCaretPositionOnEditorDragStartType = 'start';
-            }
-        } else {
-            // this.circularSelectionOnEditorDragStart = false;
-            this.fixedCaretPositionOnEditorDragStart = caretPosition;
-            this.fixedCaretPositionOnEditorDragStartType = 'caret';
-        }
-    }
-
-    handleEditorDragStop(event, ui) {
-        var self = this;
-        if (this.editorBeingDragged) { //check to make sure dragging actually occurred
-            setTimeout(function() {
-                //we use setTimeout to put the call to change editorBeingDragged to false
-                //on the bottom of the event stack, thus the click event that is fired because of the drag
-                //will be able to check if editorBeingDragged and not trigger if it is
-                self.editorBeingDragged = false;
-            }, 0);
-        } else {
-            self.editorBeingDragged = false;
-        }
-    }
-  
-  
-
-  render() {
-    console.log('selectedSequenceString: ' + JSON.stringify(selectedSequenceString,null,4));
-      // var visibilityParameters = this.props.visibilityParameters;
-      // var highlightLayer = this.props.highlightLayer;
-    var self = this;
-    var {
-        selectionLayer,
-        caretPosition,
-        sequenceLength,
-        bpsPerRow,
-        totalRows,
-        sequenceData,
-        selectedSequenceString,
-        signals: {
-            setViewportDimensions,
-            jumpToRow,
-            toggleAnnotationDisplay
-        }
-    } = this.props;
-    var featuresCount = sequenceData.features ? sequenceData.features.length : 0;
-    var annotationList = ['features', 'parts', 'translations', 'orfs', 'cutsites'];
-    var toggleButtons = annotationList.map(function(annotationType, index){
-      // console.log(">>> " + annotationType + " " + index);
-      return (<button key={index} onClick={function () {
-            toggleAnnotationDisplay(String(annotationType));
-          }}>
-           toggle {annotationType}
-          </button>)
-    });
-
-    return (
-      <div ref="sequenceEditor"
-        style={{float:"right"}}>
-        features 7 count: {featuresCount}
-        <br/>
-        selectionLayer: {selectionLayer.start}  {selectionLayer.end}
-        <br/>
-        caretPosition: {caretPosition}
-        <br/>
-        sequence length: {sequenceLength}
-        <br/>
-        bpsPerRow:  {bpsPerRow}
-        <br/>
-
-        <button onClick={function () {
-          setViewportDimensions({height: 800, width: 1500})
-        }}>
-         set viewport dimensions
-        </button>
-
-        {toggleButtons}
-
-        <button onClick={function () {
-          jumpToRow(self.props.newRandomRowToJumpTo)
-        }}>
-         Jump to a random row!: Row #{self.props.newRandomRowToJumpTo.row}
-        </button>
-        
-        <Clipboard
-          value={selectedSequenceString}
-          onCopy={this.handleCopy.bind(this)}
-          onPaste={this.handlePaste.bind(this)}/>
-        <br/>
-        totalRows:  {totalRows}
-        
-        <RowView 
-          handleEditorDrag={this.handleEditorDrag.bind(this)}
-          handleEditorDragStart={this.handleEditorDragStart.bind(this)}
-          handleEditorDragStop={this.handleEditorDragStop.bind(this)}
-          handleEditorClick={this.handleEditorClick.bind(this)}
-           />
-             <br/>
-             <br/>
-             <br/>
-        
-      </div>
-    );
-  }
 }
-
-// <MapView 
-//           {...this.props}
-//           />
-
-
-// <button onClick={function () {
-//           jumpToRow(self.props.newRandomRowToJumpTo),
-//         }}>
-//           Jump to a random row: Row #{self.props.newRandomRowToJumpTo.row}
-//         </button>
 
 module.exports = SequenceEditor;

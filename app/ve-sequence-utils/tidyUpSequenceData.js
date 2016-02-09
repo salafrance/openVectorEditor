@@ -1,10 +1,10 @@
 // tnrtodo: figure out where to insert this validation exactly..
-var assign = require('lodash/object/assign');
+var clonedeep = require('lodash/lang/cloneDeep');
 var randomColor = require('random-color');
 var FeatureTypes = require('./FeatureTypes.js');
 var areNonNegativeIntegers = require('validate.io-nonnegative-integer-array');
 module.exports = function tidyUpSequenceData(sequence) {
-    var sequenceData = assign({}, sequence); //sequence is usually immutable, so we clone it and return it
+    var sequenceData = clonedeep(sequence); //sequence is usually immutable, so we clone it and return it
     var response = {
         messages: []
     };
@@ -77,11 +77,11 @@ module.exports = function tidyUpSequenceData(sequence) {
         }
 
         if (!annotation.type || typeof annotation.type !== 'string' || FeatureTypes.some(function(featureType) {
-                if (featureType.toLowerCase === annotation.type.toLowerCase()) {
-                    annotation.type = featureType; //this makes sure the annotation.type is being set to the exact value of the accepted featureType
-                    return true;
-                }
-            })) {
+            if (featureType.toLowerCase === annotation.type.toLowerCase()) {
+                annotation.type = featureType; //this makes sure the annotation.type is being set to the exact value of the accepted featureType
+                return true;
+            }
+        })) {
             response.messages.push('Invalid annotation type detected:  ' + annotation.type + ' for ' + annotation.name + '. set type to misc_feature');
             annotation.type = 'misc_feature';
         }

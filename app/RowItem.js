@@ -1,5 +1,7 @@
 import React, {PropTypes} from 'react';
+import HighlightLayer from './HighlightLayer';
 
+var getComplementSequenceString = require('ve-sequence-utils/getComplementSequenceString');
 var SequenceContainer = require('./SequenceContainer');
 var AxisContainer = require('./AxisContainer');
 var OrfContainer = require('./OrfContainer');
@@ -7,7 +9,6 @@ var TranslationContainer = require('./TranslationContainer');
 var FeatureContainer = require('./FeatureContainer');
 var CutsiteLabelContainer = require('./CutsiteLabelContainer');
 var CutsiteSnipsContainer = require('./CutsiteSnipsContainer');
-var HighlightLayer = require('./HighlightLayer');
 var Caret = require('./Caret');
 
 class RowItem extends React.Component {
@@ -15,6 +16,7 @@ class RowItem extends React.Component {
         var {
             charWidth,
             selectionLayer,
+            searchLayers,
             cutsiteLabelSelectionLayer,
             annotationHeight,
             tickSpacing,
@@ -30,6 +32,7 @@ class RowItem extends React.Component {
             sequenceLength,
             bpsPerRow,
             row,
+            uppercase,
             signals,
         } = this.props;
         if (!row) {
@@ -42,6 +45,8 @@ class RowItem extends React.Component {
             position: "relative",
             width: "100%",
         };
+
+        var sequence = (uppercase) ? row.sequence.toUpperCase() : row.sequence.toLowerCase();
 
         return (
             <div className="rowContainer"
@@ -96,7 +101,7 @@ class RowItem extends React.Component {
                     spaceBetweenAnnotations={spaceBetweenAnnotations}/>
                 }
                 <SequenceContainer 
-                    sequence={row.sequence} 
+                    sequence={sequence} 
                     charWidth={charWidth}>
                     {(showCutsites && row.cutsites.length > 0) && <CutsiteSnipsContainer
                         row={row}
@@ -110,7 +115,7 @@ class RowItem extends React.Component {
                 </SequenceContainer>
 
                 {showReverseSequence &&
-                    <SequenceContainer sequence={row.sequence.split('').reverse().join('')} charWidth={charWidth}>
+                    <SequenceContainer sequence={ getComplementSequenceString(sequence)} charWidth={charWidth}>
                         {(showCutsites && row.cutsites.length > 0) && <CutsiteSnipsContainer
                                                 row={row}
                                                 signals={signals}
@@ -137,7 +142,7 @@ class RowItem extends React.Component {
                     row={row}
                     signals={signals}
                     sequenceLength={sequenceLength}
-                    selectionLayer={selectionLayer}
+                    regions={[selectionLayer]}
                 >
                 </HighlightLayer>
                 <HighlightLayer
@@ -147,7 +152,17 @@ class RowItem extends React.Component {
                     color={'green'}
                     signals={signals}
                     sequenceLength={sequenceLength}
-                    selectionLayer={cutsiteLabelSelectionLayer}
+                    regions={[cutsiteLabelSelectionLayer]}
+                >
+                </HighlightLayer>
+                <HighlightLayer
+                    charWidth={charWidth}
+                    bpsPerRow={bpsPerRow}
+                    row={row}
+                    color={'yellow'}
+                    signals={signals}
+                    sequenceLength={sequenceLength}
+                    regions={searchLayers}
                 >
                 </HighlightLayer>
                 {!selectionLayer.selected && 
@@ -182,6 +197,7 @@ RowItem.propTypes = {
     caretPosition: PropTypes.number.isRequired,
     sequenceLength: PropTypes.number.isRequired,
     bpsPerRow: PropTypes.number.isRequired,
+    uppercase: PropTypes.bool.isRequired,
     row: PropTypes.object.isRequired
 };
 
