@@ -211,7 +211,7 @@ export default class SequenceEditor extends React.Component {
                         <CircularView />
                     </div>
                     <div className={styles.rowViewSlot} id="rowView" style={ rowStyle }>
-                        <RowView sequenceData={sequenceData} />
+                        <RowView columnWidth={8} sequenceData={sequenceData} />
                     </div>
                 </div>
 

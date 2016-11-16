@@ -6,6 +6,8 @@ export default {
             for (let i = 0; i < string.length; i += columnWidth) {
                 columns.push(string.substr(i, columnWidth) + ' ');
             }
+        } else {
+            columns = [string];
         }
 
         return columns.join('');
