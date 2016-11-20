@@ -3,17 +3,24 @@ import getComplementSequenceString from 've-sequence-utils/getComplementSequence
 import { columnizeString, elementWidth, calculateRowLength } from '../utils';
 import styles from './RowItem.scss';
 
-export default class RowItem extends React.Component {
+class RowItem extends React.Component {
 
     constructor(props) {
         super(props);
 
-        this.state = {};
+        this.state = {
+            dragging: false
+        };
     }
 
-    getMaxSequenceLength(charWidth, columnWidth) {
+    _charWidth() {
+        if (this.refs.fontMeasure) return this.refs.fontMeasure.clientWidth;
+        return null;
+    }
+
+    maxSequenceLength(columnWidth) {
         var sequenceWidthPx = elementWidth(this.refs.sequenceContainer);
-        return calculateRowLength(charWidth, sequenceWidthPx, columnWidth);
+        return calculateRowLength(this._charWidth(), sequenceWidthPx, columnWidth);
     }
 
     _resizeSVG() {
@@ -41,8 +48,7 @@ export default class RowItem extends React.Component {
 
         var {
             sequence,
-            offset,
-            className
+            offset
         } = sequenceData;
 
         var complement = getComplementSequenceString(sequence);
@@ -57,17 +63,50 @@ export default class RowItem extends React.Component {
         });
     }
 
+    _nearestBP(x) {
+        var {
+            offset
+        } = this.props.sequenceData;
+
+        var columnWidth = this.props.columnWidth;
+        var charWidth = this._charWidth();
+
+        var localBP = Math.ceil(x / charWidth);
+        var gaps = Math.floor(localBP / columnWidth);
+        return offset + localBP - gaps;
+    }
+
+    _handleMouseEvent(event, callback, toggleDragging) {
+        var dragging = this.state.dragging;
+        if (toggleDragging || dragging) {
+            var nearestBP = this._nearestBP(event.nativeEvent.offsetX);
+
+            callback({
+                shiftHeld: event.shiftKey,
+                nearestBP,
+                false
+            });
+        }
+
+        if (toggleDragging) {
+            this.setState({
+                dragging: !dragging
+            });
+        }
+    }
+
     componentWillMount() {
         this._processProps(this.props);
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps(nextProps, context) {
         this._processProps(nextProps);
     }
 
     render() {
         var {
-            className
+            className,
+            index
         } = this.props;
 
         var {
@@ -76,13 +115,24 @@ export default class RowItem extends React.Component {
             renderedOffset
         } = this.state;
 
+        var signals = this.context.controller.getSignals();
+
         return (
-            <div className={styles.rowItem + ' ' + className}>
+            <div
+                className={styles.rowItem + ' ' + className}
+            >
+                <div ref={'fontMeasure'} className={styles.fontMeasure}>m</div>
+
                 <div className={styles.margin}>
                     {renderedOffset}
                 </div>
 
-                <svg ref={'sequenceContainer'} className={styles.sequenceContainer}>
+                <svg ref={'sequenceContainer'}
+                     className={styles.sequenceContainer}
+                     onMouseDown={e => this._handleMouseEvent(e, signals.editorDragStarted, true)}
+                     onMouseMove={e => this._handleMouseEvent(e, signals.editorDragged, false)}
+                     onMouseUp={e => this._handleMouseEvent(e, signals.editorDragStopped, true)}
+                >
                     <text ref={'sequence'} className={styles.sequence}>
                         <tspan className={styles.sequence}>
                             {renderedSequence}
@@ -98,3 +148,9 @@ export default class RowItem extends React.Component {
     }
 
 }
+
+RowItem.contextTypes = {
+    controller: PropTypes.object.isRequired
+};
+
+export default RowItem;

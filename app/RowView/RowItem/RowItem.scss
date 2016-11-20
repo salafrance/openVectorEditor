@@ -19,6 +19,13 @@
     }
 }
 
+.fontMeasure {
+    height: 0;
+    display: inline-block;
+    overflow: hidden;
+    position: absolute;
+}
+
 .margin {
     width: 4em;
     text-align: right;

@@ -4,6 +4,7 @@ import styles from './RowView.scss';
 import assign from 'lodash/object/assign';
 import ResizeSensor from 'css-element-queries/src/ResizeSensor';
 import RowItem from './RowItem/RowItem.js';
+import Draggable from 'react-draggable';
 
 @Cerebral({
     embedded: ['embedded'],
@@ -39,8 +40,7 @@ export default class RowView extends React.Component {
 
         if (size <= 0) return;
 
-        var charWidth = fontMeasure.getBoundingClientRect().width;
-        var rowLength = rowMeasure.getMaxSequenceLength(charWidth, columnWidth);
+        var rowLength = rowMeasure.maxSequenceLength(columnWidth);
 
         if (rowLength === 0) return;
 
@@ -54,7 +54,9 @@ export default class RowView extends React.Component {
             rowData.push(data);
         }
 
-        this.setState({ rowData: rowData });
+        this.setState({
+            rowData: rowData
+        });
     }
 
     componentDidMount() {
@@ -64,7 +66,8 @@ export default class RowView extends React.Component {
 
     render() {
         var {
-            columnWidth
+            columnWidth,
+            signals
         } = this.props;
 
         var {
@@ -74,13 +77,14 @@ export default class RowView extends React.Component {
 
         return (
             <div ref={'rowView'}
-                className={ styles.rowView }
-                style={ embedded ? { display: 'none' } : null } // prime this inline for embedded version
-                >
-                <div ref={'fontMeasure'} className={styles.fontMeasure}>m</div>
-                <RowItem ref={'rowMeasure'} sequenceData={{ sequence: '' }} className={styles.rowMeasure} />
+                    className={ styles.rowView }
+                    style={ embedded ? { display: 'none' } : null } // prime this inline for embedded version
+            >
+                <RowItem ref={'rowMeasure'} sequenceData={{ sequence: '' }} className={styles.rowMeasure}/>
                 {
-                    rowData.map(datum => <RowItem sequenceData={datum} columnWidth={columnWidth} />)
+                    rowData.map((datum, index ) => {
+                        return <RowItem className={'veRowItem'} sequenceData={datum} columnWidth={columnWidth} />
+                    })
                 }
             </div>
         );
