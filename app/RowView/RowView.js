@@ -3,7 +3,7 @@ import {Decorator as Cerebral} from 'cerebral-view-react';
 import styles from './RowView.scss';
 import assign from 'lodash/object/assign';
 import ResizeSensor from 'css-element-queries/src/ResizeSensor';
-import RowItem from './RowItem/RowItem.js';
+import RowItem, { DummyRowItem } from './RowItem/RowItem.js';
 import Draggable from 'react-draggable';
 
 @Cerebral({
@@ -80,7 +80,7 @@ export default class RowView extends React.Component {
                     className={ styles.rowView }
                     style={ embedded ? { display: 'none' } : null } // prime this inline for embedded version
             >
-                <RowItem ref={'rowMeasure'} sequenceData={{ sequence: '' }} className={styles.rowMeasure}/>
+                <DummyRowItem ref={'rowMeasure'} sequenceData={{ sequence: '' }} className={styles.rowMeasure}/>
                 {
                     rowData.map((datum, index ) => {
                         return <RowItem className={'veRowItem'} sequenceData={datum} columnWidth={columnWidth} />

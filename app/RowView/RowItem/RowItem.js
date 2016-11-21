@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import { HOC as Cerebral } from 'cerebral-view-react';
 import getComplementSequenceString from 've-sequence-utils/getComplementSequenceString';
 import { columnizeString, elementWidth, calculateRowLength } from '../utils';
 import styles from './RowItem.scss';
@@ -106,7 +107,8 @@ class RowItem extends React.Component {
     render() {
         var {
             className,
-            index
+            index,
+            signals
         } = this.props;
 
         var {
@@ -114,8 +116,6 @@ class RowItem extends React.Component {
             renderedComplement,
             renderedOffset
         } = this.state;
-
-        var signals = this.context.controller.getSignals();
 
         return (
             <div
@@ -149,8 +149,11 @@ class RowItem extends React.Component {
 
 }
 
-RowItem.contextTypes = {
-    controller: PropTypes.object.isRequired
-};
+let LinkedRowItem = Cerebral(RowItem, {
+    selectionLayer: ['selectionLayer']
+});
 
-export default RowItem;
+export {
+    LinkedRowItem as default,
+    RowItem as DummyRowItem
+};
