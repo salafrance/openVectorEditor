@@ -19,6 +19,12 @@
     }
 }
 
+.highlight {
+    fill: blue;
+    opacity: 0.4;
+    z-index: 9999;
+}
+
 .fontMeasure {
     height: 0;
     display: inline-block;

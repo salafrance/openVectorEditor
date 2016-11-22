@@ -139,7 +139,7 @@ class RowItem extends React.Component {
             var renderWidth = renderEnd - renderStart;
             var charWidth = this._charWidth();
 
-            return <rect x={renderStart * charWidth} y={0} width={renderWidth * charWidth} height={10} fill={'blue'} />;
+            return <rect className={styles.highlight} x={renderStart * charWidth} y={0} width={renderWidth * charWidth} height={'100%'}  />;
         }
 
         return null;
