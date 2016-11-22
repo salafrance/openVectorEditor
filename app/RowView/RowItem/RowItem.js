@@ -9,9 +9,7 @@ class RowItem extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = {
-            dragging: false
-        };
+        this.state = {};
     }
 
     _charWidth() {
@@ -82,7 +80,7 @@ class RowItem extends React.Component {
     }
 
     _handleMouseEvent(event, callback, toggleDragging) {
-        var dragging = this.state.dragging;
+        var dragging = event.buttons == 1;
         if (toggleDragging || dragging) {
             var nearestBP = this._nearestBP(event.nativeEvent.offsetX);
 
@@ -90,12 +88,6 @@ class RowItem extends React.Component {
                 shiftHeld: event.shiftKey,
                 nearestBP,
                 false
-            });
-        }
-
-        if (toggleDragging) {
-            this.setState({
-                dragging: !dragging
             });
         }
     }
