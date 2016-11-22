@@ -13,7 +13,8 @@ class RowItem extends React.Component {
     }
 
     _charWidth() {
-        if (this.refs.fontMeasure) return this.refs.fontMeasure.getBoundingClientRect().width;
+        var {fontMeasure} = this.refs;
+        if (fontMeasure) return fontMeasure.getBoundingClientRect().width;
         return null;
     }
 
