@@ -15,7 +15,7 @@ class RowItem extends React.Component {
     }
 
     _charWidth() {
-        if (this.refs.fontMeasure) return this.refs.fontMeasure.clientWidth;
+        if (this.refs.fontMeasure) return this.refs.fontMeasure.getBoundingClientRect().width;
         return null;
     }
 
@@ -30,7 +30,11 @@ class RowItem extends React.Component {
         } = this.refs;
 
         var bbox = svg.getBBox();
-        svg.setAttribute('height', bbox.y + bbox.height + 'px');
+        var width = Math.floor(bbox.x + bbox.width);
+        var height = Math.floor(bbox.y + bbox.height);
+        svg.setAttribute('height', height + 'px');
+        svg.setAttribute('width', width + 'px');
+        svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
     }
 
     componentDidMount() {
@@ -104,11 +108,49 @@ class RowItem extends React.Component {
         this._processProps(nextProps);
     }
 
+    _highlight(highlight) {
+        if (!highlight || highlight.start == -1 && highlight.end == -1) return null;
+
+        var { start, end } = highlight;
+        var {
+            sequenceData,
+            columnWidth
+        } = this.props;
+        var {
+            offset,
+            sequence: {
+                length
+            }
+        } = sequenceData;
+
+        start -= 1;
+        end -= 1;
+
+        var rowStart = offset;
+        var rowEnd = offset + length;
+
+        if (start <= rowEnd && end >= rowStart) {
+            var renderStart = (start > rowStart) ? start - rowStart : 0;
+            var renderEnd = (end < rowEnd) ? end - rowStart : rowEnd - rowStart;
+
+            renderStart += Math.floor(renderStart / columnWidth);
+            renderEnd += Math.floor(renderEnd / columnWidth);
+
+            var renderWidth = renderEnd - renderStart;
+            var charWidth = this._charWidth();
+
+            return <rect x={renderStart * charWidth} y={0} width={renderWidth * charWidth} height={10} fill={'blue'} />;
+        }
+
+        return null;
+    }
+
     render() {
         var {
             className,
             index,
-            signals
+            signals,
+            selectionLayer
         } = this.props;
 
         var {
@@ -133,6 +175,8 @@ class RowItem extends React.Component {
                      onMouseMove={e => this._handleMouseEvent(e, signals.editorDragged, false)}
                      onMouseUp={e => this._handleMouseEvent(e, signals.editorDragStopped, true)}
                 >
+                    {this._highlight(selectionLayer)}
+
                     <text ref={'sequence'} className={styles.sequence}>
                         <tspan className={styles.sequence}>
                             {renderedSequence}
