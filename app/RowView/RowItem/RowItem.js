@@ -80,17 +80,14 @@ class RowItem extends React.Component {
         return offset + localBP - gaps;
     }
 
-    _handleMouseEvent(event, callback, toggleDragging) {
-        var dragging = event.buttons == 1;
-        if (toggleDragging || dragging) {
-            var nearestBP = this._nearestBP(event.nativeEvent.offsetX);
+    _handleMouseEvent(event, callback) {
+        var nearestBP = this._nearestBP(event.nativeEvent.offsetX);
 
-            callback({
-                shiftHeld: event.shiftKey,
-                nearestBP,
-                false
-            });
-        }
+        callback({
+            shiftHeld: event.shiftKey,
+            nearestBP,
+            false
+        });
     }
 
     componentWillMount() {
@@ -143,7 +140,10 @@ class RowItem extends React.Component {
             className,
             index,
             signals,
-            selectionLayer
+            selectionLayer,
+            dragStart,
+            drag,
+            dragStop
         } = this.props;
 
         var {
@@ -164,9 +164,9 @@ class RowItem extends React.Component {
 
                 <svg ref={'sequenceContainer'}
                      className={styles.sequenceContainer}
-                     onMouseDown={e => this._handleMouseEvent(e, signals.editorDragStarted, true)}
-                     onMouseMove={e => this._handleMouseEvent(e, signals.editorDragged, false)}
-                     onMouseUp={e => this._handleMouseEvent(e, signals.editorDragStopped, true)}
+                     onMouseDown={e => this._handleMouseEvent(e, dragStart)}
+                     onMouseMove={e => this._handleMouseEvent(e, drag)}
+                     onMouseUp={e => this._handleMouseEvent(e, dragStop)}
                 >
                     {this._highlight(selectionLayer)}
 

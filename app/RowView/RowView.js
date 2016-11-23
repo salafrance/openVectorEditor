@@ -18,8 +18,37 @@ export default class RowView extends React.Component {
         super(props);
 
         this.state = {
-            rowData: []
+            rowData: [],
+            dragging: false
         };
+    }
+
+    _dragStart(opts) {
+        var {signals} = this.props;
+
+        signals.editorDragStarted(opts);
+
+        this.setState({
+            dragging: true
+        });
+    }
+
+    _drag(opts) {
+        var {signals} = this.props;
+
+        if (this.state.dragging) {
+            signals.editorDragged(opts);
+        }
+    }
+
+    _dragStop(opts) {
+        var {signals} = this.props;
+
+        signals.editorDragStopped(opts);
+
+        this.setState({
+            dragging: false
+        });
     }
 
     _populateRows() {
@@ -81,10 +110,19 @@ export default class RowView extends React.Component {
                     style={ embedded ? { display: 'none' } : null } // prime this inline for embedded version
             >
                 <DummyRowItem ref={'rowMeasure'} sequenceData={{ sequence: '' }} className={styles.rowMeasure}/>
-                {
-                    rowData.map((datum, index ) => {
-                        return <RowItem className={'veRowItem'} sequenceData={datum} columnWidth={columnWidth} />
-                    })
+
+                    {rowData.map((datum, index ) => {
+                        return (
+                            <RowItem
+                                className={'veRowItem'}
+                                sequenceData={datum}
+                                columnWidth={columnWidth}
+                                dragStart={this._dragStart.bind(this)}
+                                drag={this._drag.bind(this)}
+                                dragStop={this._dragStop.bind(this)}
+                            />
+                        );
+                    })}
                 }
             </div>
         );
