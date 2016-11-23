@@ -98,6 +98,29 @@ class RowItem extends React.Component {
         this._processProps(nextProps);
     }
 
+    _highlightUnion(rowStart, rowEnd, start, end) {
+        var {totalSequenceSize} = this.props.sequenceData;
+
+        if (start > end) {
+            var left = this._highlightUnion(rowStart, rowEnd, 0, end);
+            var right = this._highlightUnion(rowStart, rowEnd, start, totalSequenceSize - 1);
+
+            if (left) return left;
+            if (right) return right;
+        }
+
+        if (!(start < rowEnd && end > rowStart)) return null;
+
+        var unionStart = (start > rowStart) ? start : rowStart;
+        var unionEnd = (end < rowEnd) ? end : rowEnd;
+
+        return {
+            start: unionStart,
+            end: unionEnd,
+            width: unionEnd - unionStart
+        };
+    }
+
     _highlight(highlight) {
         if (!highlight || highlight.start == -1 && highlight.end == -1) return null;
 
@@ -119,9 +142,11 @@ class RowItem extends React.Component {
         var rowStart = offset;
         var rowEnd = offset + length;
 
-        if (start <= rowEnd && end >= rowStart) {
-            var renderStart = (start > rowStart) ? start - rowStart : 0;
-            var renderEnd = (end < rowEnd) ? end - rowStart : rowEnd - rowStart;
+        var union = this._highlightUnion(rowStart, rowEnd, start, end);
+
+        if (union) {
+            var renderStart = union.start - rowStart;
+            var renderEnd = union.end - rowStart;
 
             renderStart += Math.floor(renderStart / columnWidth);
             renderEnd += Math.floor(renderEnd / columnWidth);

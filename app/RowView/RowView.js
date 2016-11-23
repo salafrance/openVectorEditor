@@ -79,6 +79,7 @@ export default class RowView extends React.Component {
             let data = {};
             data.sequence = sequence.substr(i, rowLength);
             data.offset = i;
+            data.totalSequenceSize = size;
             data = assign({}, sequenceData, data);
             rowData.push(data);
         }
