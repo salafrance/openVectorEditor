@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import throttle from 'lodash/function/throttle';
 import { HOC as Cerebral } from 'cerebral-view-react';
 import getComplementSequenceString from 've-sequence-utils/getComplementSequenceString';
 import { columnizeString, elementWidth, calculateRowLength } from '../utils';
@@ -81,6 +82,7 @@ class RowItem extends React.Component {
     }
 
     _handleMouseEvent(event, callback) {
+        if (!event.nativeEvent) return; // FIXME: Don't rely on nativeEvent.
         var nearestBP = this._nearestBP(event.nativeEvent.offsetX);
 
         callback({
@@ -177,6 +179,10 @@ class RowItem extends React.Component {
             renderedOffset
         } = this.state;
 
+        var onDragStart = throttle(e => this._handleMouseEvent(e, dragStart), 250);
+        var onDrag = throttle(e => this._handleMouseEvent(e, drag), 250);
+        var onDragStop = throttle(e => this._handleMouseEvent(e, dragStop), 250);
+
         return (
             <div
                 className={styles.rowItem + ' ' + className}
@@ -189,9 +195,9 @@ class RowItem extends React.Component {
 
                 <svg ref={'sequenceContainer'}
                      className={styles.sequenceContainer}
-                     onMouseDown={e => this._handleMouseEvent(e, dragStart)}
-                     onMouseMove={e => this._handleMouseEvent(e, drag)}
-                     onMouseUp={e => this._handleMouseEvent(e, dragStop)}
+                     onMouseDown={onDragStart}
+                     onMouseMove={onDrag}
+                     onMouseUp={onDragStop}
                 >
                     {this._highlight(selectionLayer)}
 
