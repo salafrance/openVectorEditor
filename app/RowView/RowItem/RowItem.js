@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import throttle from 'lodash/function/throttle';
 import { HOC as Cerebral } from 'cerebral-view-react';
 import getComplementSequenceString from 've-sequence-utils/getComplementSequenceString';
-import { columnizeString, elementWidth, calculateRowLength } from '../utils';
+import { columnizeString, elementWidth, calculateRowLength, circularUnion } from './utils';
 import styles from './RowItem.scss';
 
 class RowItem extends React.Component {
@@ -100,29 +100,6 @@ class RowItem extends React.Component {
         this._processProps(nextProps);
     }
 
-    _highlightUnion(rowStart, rowEnd, start, end) {
-        var {totalSequenceSize} = this.props.sequenceData;
-
-        if (start > end) {
-            var left = this._highlightUnion(rowStart, rowEnd, 0, end);
-            var right = this._highlightUnion(rowStart, rowEnd, start, totalSequenceSize - 1);
-
-            if (left) return left;
-            if (right) return right;
-        }
-
-        if (!(start < rowEnd && end > rowStart)) return null;
-
-        var unionStart = (start > rowStart) ? start : rowStart;
-        var unionEnd = (end < rowEnd) ? end : rowEnd;
-
-        return {
-            start: unionStart,
-            end: unionEnd,
-            width: unionEnd - unionStart
-        };
-    }
-
     _highlight(highlight) {
         if (!highlight || highlight.start == -1 && highlight.end == -1) return null;
 
@@ -135,7 +112,8 @@ class RowItem extends React.Component {
             offset,
             sequence: {
                 length
-            }
+            },
+            totalSequenceSize
         } = sequenceData;
 
         start -= 1;
@@ -144,7 +122,7 @@ class RowItem extends React.Component {
         var rowStart = offset;
         var rowEnd = offset + length;
 
-        var union = this._highlightUnion(rowStart, rowEnd, start, end);
+        var union = circularUnion(rowStart, rowEnd, start, end, totalSequenceSize);
 
         if (union) {
             var renderStart = union.start - rowStart;
