@@ -192,9 +192,9 @@ class RowItem extends React.Component {
             renderedOffset
         } = this.state;
 
-        var onDragStart = throttle(e => this._handleMouseEvent(e, dragStart), 250);
+        var onDragStart = e => { this._handleMouseEvent(e, dragStart) };
         var onDrag = throttle(e => this._handleMouseEvent(e, drag), 250);
-        var onDragStop = throttle(e => this._handleMouseEvent(e, dragStop), 250);
+        var onDragStop = e => { this._handleMouseEvent(e, dragStop) };
 
         return (
             <div
