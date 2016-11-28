@@ -64,7 +64,8 @@ export default class RowView extends React.Component {
 
         var {
             sequence,
-            size
+            size,
+            features
         } = sequenceData;
 
         if (size <= 0) return;
@@ -80,6 +81,7 @@ export default class RowView extends React.Component {
             data.sequence = sequence.substr(i, rowLength);
             data.offset = i;
             data.totalSequenceSize = size;
+            data.features = features;
             data = assign({}, sequenceData, data);
             rowData.push(data);
         }
@@ -114,7 +116,7 @@ export default class RowView extends React.Component {
             >
                 <DummyRowItem ref={'rowMeasure'} sequenceData={{ sequence: '' }} className={styles.rowMeasure}/>
 
-                    {rowData.map((datum, index ) => {
+                    {rowData.map((datum) => {
                         return (
                             <RowItem
                                 className={'veRowItem'}
@@ -126,7 +128,6 @@ export default class RowView extends React.Component {
                             />
                         );
                     })}
-                }
             </div>
         );
     }

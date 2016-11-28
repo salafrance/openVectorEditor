@@ -53,7 +53,8 @@ class RowItem extends React.Component {
 
         var {
             sequence,
-            offset
+            offset,
+            features
         } = sequenceData;
 
         var complement = getComplementSequenceString(sequence);
@@ -61,10 +62,15 @@ class RowItem extends React.Component {
         var renderedSequence = columnizeString(sequence, columnWidth);
         var renderedComplement = columnizeString(complement, columnWidth);
 
+        if (features) {
+            var renderedFeatures = features.map(this._feature.bind(this));
+        }
+
         this.setState({
             renderedSequence: renderedSequence,
             renderedComplement: renderedComplement,
-            renderedOffset: (offset || 0) + 1
+            renderedOffset: (offset || 0) + 1,
+            renderedFeatures: renderedFeatures
         });
     }
 
@@ -101,6 +107,8 @@ class RowItem extends React.Component {
     }
 
     _circularUnion(start0, end0, start1, end1, length) {
+        end1 = (end1 < 0) ? 0 : end1;
+        start1 = (start1 < 0) ? 0 : start1;
         if (start1 > end1) {
             var left = this._circularUnion(start0, end0, 0, end1);
             var right = this._circularUnion(start0, end0, start1, length - 1);
@@ -165,6 +173,16 @@ class RowItem extends React.Component {
         return null;
     }
 
+    _feature(feature) {
+        var renderUnion = this._renderUnion(feature);
+
+        if (renderUnion) {
+            return <rect className={styles.feature} x={renderUnion.start} width={renderUnion.width} height={'10px'} />;
+        }
+
+        return null
+    }
+
     _highlight(highlight) {
         var renderUnion = this._renderUnion(highlight);
 
@@ -183,13 +201,17 @@ class RowItem extends React.Component {
             selectionLayer,
             dragStart,
             drag,
-            dragStop
+            dragStop,
+            sequenceData: {
+                features
+            }
         } = this.props;
 
         var {
             renderedSequence,
             renderedComplement,
-            renderedOffset
+            renderedOffset,
+            renderedFeatures
         } = this.state;
 
         var onDragStart = e => { this._handleMouseEvent(e, dragStart) };
@@ -212,6 +234,7 @@ class RowItem extends React.Component {
                      onMouseMove={onDrag}
                      onMouseUp={onDragStop}
                 >
+                    {renderedFeatures}
                     {this._highlight(selectionLayer)}
 
                     <text ref={'sequence'} className={styles.sequence}>
