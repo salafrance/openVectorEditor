@@ -121,10 +121,10 @@ class RowItem extends React.Component {
         };
     }
 
-    _highlight(highlight) {
-        if (!highlight || highlight.start == -1 && highlight.end == -1) return null;
+    _renderUnion(segement) {
+        if (!segement || segement.start == -1 && segement.end == -1) return null;
 
-        var { start, end } = highlight;
+        var { start, end } = segement;
         var {
             sequenceData,
             columnWidth
@@ -155,7 +155,21 @@ class RowItem extends React.Component {
             var renderWidth = renderEnd - renderStart;
             var charWidth = this._charWidth();
 
-            return <rect className={styles.highlight} x={renderStart * charWidth} y={0} width={renderWidth * charWidth} height={'100%'}  />;
+            return {
+                start: renderStart * charWidth,
+                end: renderEnd * charWidth,
+                width: renderWidth * charWidth
+            };
+        }
+
+        return null;
+    }
+
+    _highlight(highlight) {
+        var renderUnion = this._renderUnion(highlight);
+
+        if (renderUnion) {
+            return <rect className={styles.highlight} x={renderUnion.start} y={0} width={renderUnion.width} height={'100%'}  />;
         }
 
         return null;
