@@ -8,7 +8,7 @@ import Draggable from 'react-draggable';
 
 @Cerebral({
     embedded: ['embedded'],
-    sequenceData: ['sequenceData'],
+    sequenceData: ['combinedSequenceData'],
     columnWidth: ['columnWidth']
 })
 
@@ -109,6 +109,8 @@ export default class RowView extends React.Component {
             <div ref={'rowView'}
                     className={ styles.rowView }
                     style={ embedded ? { display: 'none' } : null } // prime this inline for embedded version
+                    onMouseUp={e => { this._dragStop(e) }}
+                    onMouseLeave={e => { this._dragStop(e) }}
             >
                 <DummyRowItem ref={'rowMeasure'} sequenceData={{ sequence: '' }} className={styles.rowMeasure}/>
 
