@@ -100,6 +100,27 @@ class RowItem extends React.Component {
         this._processProps(nextProps);
     }
 
+    _circularUnion(start0, end0, start1, end1, length) {
+        if (start1 > end1) {
+            var left = this._circularUnion(start0, end0, 0, end1);
+            var right = this._circularUnion(start0, end0, start1, length - 1);
+
+            if (left) return left;
+            if (right) return right;
+        }
+
+        if (!(start1 < end0 && end1 > start0)) return null;
+
+        var unionStart = (start1 > start0) ? start1 : start0;
+        var unionEnd = (end1 < end0) ? end1 : end0;
+
+        return {
+            start: unionStart,
+            end: unionEnd,
+            width: unionEnd - unionStart
+        };
+    }
+
     _highlight(highlight) {
         if (!highlight || highlight.start == -1 && highlight.end == -1) return null;
 
@@ -122,7 +143,7 @@ class RowItem extends React.Component {
         var rowStart = offset;
         var rowEnd = offset + length;
 
-        var union = circularUnion(rowStart, rowEnd, start, end, totalSequenceSize);
+        var union = this._circularUnion(rowStart, rowEnd, start, end, totalSequenceSize);
 
         if (union) {
             var renderStart = union.start - rowStart;

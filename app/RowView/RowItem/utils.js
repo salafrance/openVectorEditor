@@ -29,26 +29,5 @@ export default {
 
     elementWidth: function(elem) {
         return (elem) ? parseFloat(getComputedStyle(elem).width) : 0;
-    },
-
-    circularUnion: function circularUnion(start0, end0, start1, end1, length) {
-        if (start1 > end1) {
-            var left = circularUnion(start0, end0, 0, end1);
-            var right = circularUnion(start0, end0, start1, length - 1);
-
-            if (left) return left;
-            if (right) return right;
-        }
-
-        if (!(start1 < end0 && end1 > start0)) return null;
-
-        var unionStart = (start1 > start0) ? start1 : start0;
-        var unionEnd = (end1 < end0) ? end1 : end0;
-
-        return {
-            start: unionStart,
-            end: unionEnd,
-            width: unionEnd - unionStart
-        };
     }
 }
