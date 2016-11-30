@@ -75,6 +75,8 @@ class RowItem extends React.Component {
     }
 
     _nearestBP(x) {
+        if (x === undefined || x === null || isNaN(x)) return null;
+
         var {
             offset
         } = this.props.sequenceData;
@@ -88,8 +90,7 @@ class RowItem extends React.Component {
     }
 
     _handleMouseEvent(event, callback) {
-        if (!event.nativeEvent) return; // FIXME: Don't rely on nativeEvent.
-        var nearestBP = this._nearestBP(event.nativeEvent.offsetX);
+        var nearestBP = this._nearestBP(this._cursorPosition(event));
 
         callback({
             shiftHeld: event.shiftKey,
@@ -127,6 +128,11 @@ class RowItem extends React.Component {
             end: unionEnd,
             width: unionEnd - unionStart
         };
+    }
+
+    _cursorPosition(e) {
+        if (!e || !e.target) return null;
+        return e.clientX - e.target.getBoundingClientRect().left;
     }
 
     _renderUnion(segement) {
