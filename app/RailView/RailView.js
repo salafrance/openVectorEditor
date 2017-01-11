@@ -59,7 +59,9 @@ export default class RailView extends React.Component {
                         />
                 </marker>
 
-                { annotationsSvgs }
+                <g transform={`translate(-${baseWidth / 2}, 0)`}>
+                    { annotationsSvgs }
+                </g>
             </svg>
         );
     }
