@@ -26,17 +26,30 @@ export default class RailView extends React.Component {
         }
 
         if (selectionLayer && selectionLayer.selected) {
+            let {
+                start,
+                end
+            } = selectionLayer;
+
+            annotationsSvgs.push(
+                <path
+                    style={{opacity: .4}}
+                    d={`M ${start}, -4 L ${end}, -4 L ${end}, 8 L ${start}, 8 Z`}
+                    fill={'blue'}
+                />
+            );
+
             annotationsSvgs.push(
                 <Caret
                     key='caretStart'
-                    caretPosition={selectionLayer.start}
+                    caretPosition={start}
                     sequenceLength={sequenceLength}
                     />
             );
             annotationsSvgs.push(
                 <Caret
                     key='caretEnd'
-                    caretPosition={selectionLayer.end + 1}
+                    caretPosition={end + 1}
                     sequenceLength={sequenceLength}
                     />
             );

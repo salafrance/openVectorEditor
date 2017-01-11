@@ -12,9 +12,9 @@ export default function Caret ({caretPosition, sequenceLength, className}) {
             strokeWidth='1px'
             style={ { opacity: 9, zIndex: 100,  cursor: "ew-resize", vectorEffect: 'non-scaling-stroke' } }//tnr: the classname needs to be cursor here!
             x1={caretPosition}
-            y1={0}
+            y1={-4}
             x2={caretPosition}
-            y2={100}
+            y2={8}
             stroke="blue"
             />
     )
