@@ -5,6 +5,8 @@ import StatusBar from './StatusBar';
 import SideBar from './SideBar';
 import styles from './sequence-editor.css';
 
+import RailView from './RailView/RailView';
+
 var bindGlobalPlugin = require('combokeys/plugins/global-bind');
 var CircularView = require('./CircularView/CircularView');
 var Clipboard = require('./Clipboard');
@@ -208,7 +210,7 @@ export default class SequenceEditor extends React.Component {
                     </div>
 
                     <div className={styles.circularViewSlot} id="circularView" style={ circularStyle }>
-                        <CircularView />
+                        <RailView />
                     </div>
                     <div className={styles.rowViewSlot} id="rowView" style={ rowStyle }>
                         <RowView sequenceData={sequenceData} />
