@@ -10,7 +10,7 @@ export default function Caret ({caretPosition, sequenceLength, className}) {
         <line
             className={className}
             strokeWidth='1px'
-            style={ { opacity: 9, zIndex: 100,  cursor: "ew-resize",} }//tnr: the classname needs to be cursor here!
+            style={ { opacity: 9, zIndex: 100,  cursor: "ew-resize", vectorEffect: 'non-scaling-stroke' } }//tnr: the classname needs to be cursor here!
             x1={caretPosition}
             y1={0}
             x2={caretPosition}
