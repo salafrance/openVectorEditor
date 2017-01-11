@@ -2,22 +2,30 @@ import React from 'react';
 import { Decorator as Cerebral } from 'cerebral-view-react';
 import styles from './RailView.scss';
 import Caret from './Caret';
+import Bar from './Bar';
 
 @Cerebral({
     sequenceLength: ['sequenceLength'],
-    selectionLayer: ['selectionLayer']
+    selectionLayer: ['selectionLayer'],
+    showAxis: ['showAxis']
 })
 export default class RailView extends React.Component {
 
     render() {
         var {
             sequenceLength,
-            selectionLayer
+            selectionLayer,
+            showAxis
         } = this.props;
 
         var annotationsSvgs = [];
+        const baseWidth = 250;
 
-        if (selectionLayer && selectionLayer.start !== -1 && selectionLayer.end !== -1) {
+        if (showAxis) {
+            annotationsSvgs.push(<Bar baseWidth={baseWidth} />);
+        }
+
+        if (selectionLayer && selectionLayer.selected) {
             annotationsSvgs.push(
                 <Caret
                     key='caretStart'
@@ -51,7 +59,7 @@ export default class RailView extends React.Component {
                         />
                 </marker>
 
-                {annotationsSvgs}
+                { annotationsSvgs }
             </svg>
         );
     }
