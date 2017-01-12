@@ -3,26 +3,46 @@ import { Decorator as Cerebral } from 'cerebral-view-react';
 import styles from './RailView.scss';
 import Caret from './Caret';
 import Bar from './Bar';
+import Features from './Features';
 
 @Cerebral({
     sequenceLength: ['sequenceLength'],
+    sequenceData: ['sequenceData'],
     selectionLayer: ['selectionLayer'],
-    showAxis: ['showAxis']
+    showAxis: ['showAxis'],
+    showFeatures: ['showFeatures']
 })
 export default class RailView extends React.Component {
 
     render() {
         var {
             sequenceLength,
+            sequenceData,
             selectionLayer,
-            showAxis
+            showAxis,
+            showFeatures,
+            signals
         } = this.props;
 
         var annotationsSvgs = [];
         const baseWidth = 250;
+        const annotationHeight = 4;
+        const spaceBetweenAnnotations = 2;
 
         if (showAxis) {
             annotationsSvgs.push(<Bar baseWidth={baseWidth} />);
+        }
+
+        if (showFeatures) {
+            var featureResults = Features({
+                features: sequenceData.features,
+                annotationHeight,
+                spaceBetweenAnnotations,
+                sequenceLength,
+                signals
+            });
+
+            annotationsSvgs.push(featureResults.component);
         }
 
         if (selectionLayer && selectionLayer.selected) {
