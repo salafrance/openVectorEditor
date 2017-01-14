@@ -27,7 +27,7 @@ export default function Features({features = [], annotationHeight, spaceBetweenA
         offset *= annotationHeight + spaceBetweenAnnotations;
 
         svgGroups.push(
-            <g transform={`translate(0, -${offset})`}>
+            <g transform={`translate(0, ${offset})`}>
                 <RailFeature
                     id={feature.id}
                     key={'features' + (length - index)}
@@ -44,7 +44,7 @@ export default function Features({features = [], annotationHeight, spaceBetweenA
         component: (
             <g
                 key={'veFeatures'}
-                transform={`translate(0, -${annotationHeight + spaceBetweenAnnotations})`}
+                transform={`translate(0, ${annotationHeight + spaceBetweenAnnotations})`}
             >
                 { svgGroups }
             </g>
