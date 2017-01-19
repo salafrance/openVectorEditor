@@ -15,9 +15,9 @@ export default class RailFeature extends React.Component {
             color
         } = feature;
 
-        const pointitude = 100;
-        const width = Math.max(end - start, pointitude);
-        const tail = width - pointitude > pointitude;
+        const arrowSlope = 100;
+        const width = Math.max(end - start, arrowSlope);
+        const tail = width - arrowSlope > arrowSlope;
         const flip = {
             toString: () => {
                 if (!feature.forward) return `translate(${width}, 0) scale(-1,1)`;
@@ -30,11 +30,11 @@ export default class RailFeature extends React.Component {
             <g>
                 <path
                     d={`M 0, 0
-                        L ${width - pointitude}, 0
+                        L ${width - arrowSlope}, 0
                         L ${width}, ${height/2}
-                        L ${width - pointitude}, ${height}
+                        L ${width - arrowSlope}, ${height}
                         L 0, ${height}
-                        L ${(tail) ? pointitude : 0}, ${height/2}
+                        L ${(tail) ? arrowSlope : 0}, ${height/2}
                         Z`}
                     fill={color}
                     stroke={'black'}
