@@ -11,14 +11,15 @@ export default class RailFeature extends React.Component {
 
         var {
             start,
-            end
+            end,
+            color
         } = feature;
 
         return (
             <g>
                 <path
                     d={`M ${start}, 0 L ${end}, 0 L ${end}, ${height} L ${start}, ${height} Z`}
-                    fill={'#cccccc'}
+                    fill={color}
                     stroke={'black'}
                     strokeWidth={'.25px'}
                     vectorEffect={'non-scaling-stroke'}
