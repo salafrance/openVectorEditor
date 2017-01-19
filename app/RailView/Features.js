@@ -35,6 +35,7 @@ export default function Features({features = [], annotationHeight, spaceBetweenA
                     key={'features' + (length - index)}
                     feature={feature}
                     height={annotationHeight}
+                    signals={signals}
                 />
             </g>
         );

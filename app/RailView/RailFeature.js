@@ -6,7 +6,8 @@ export default class RailFeature extends React.Component {
     render() {
         var {
             feature,
-            height
+            height,
+            signals
         } = this.props;
 
         var {
@@ -42,6 +43,10 @@ export default class RailFeature extends React.Component {
                     vectorEffect={'non-scaling-stroke'}
                     style={{vectorEffect: 'non-scaling-stroke'}}
                     transform={`translate(${start}, 0) ${flip}`}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        signals.featureClicked({annotation: feature})
+                    }}
                 />
             </g>
         );
