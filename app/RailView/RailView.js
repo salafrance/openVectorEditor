@@ -51,10 +51,16 @@ export default class RailView extends React.Component {
                 end
             } = selectionLayer;
 
+            let height = 8;
+
+            if (featureResults && featureResults.height) {
+                height = featureResults.height
+            }
+
             annotationsSvgs.push(
                 <path
                     style={{opacity: .4}}
-                    d={`M ${start}, -4 L ${end}, -4 L ${end}, 8 L ${start}, 8 Z`}
+                    d={`M ${start}, 0 L ${end}, 0 L ${end}, ${height} L ${start}, ${height} Z`}
                     fill={'blue'}
                 />
             );
@@ -64,6 +70,7 @@ export default class RailView extends React.Component {
                     key='caretStart'
                     caretPosition={start}
                     sequenceLength={sequenceLength}
+                    height={height}
                     />
             );
             annotationsSvgs.push(
@@ -71,6 +78,7 @@ export default class RailView extends React.Component {
                     key='caretEnd'
                     caretPosition={end + 1}
                     sequenceLength={sequenceLength}
+                    height={height}
                     />
             );
         }

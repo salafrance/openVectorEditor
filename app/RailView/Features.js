@@ -8,6 +8,7 @@ export default function Features({features = [], annotationHeight, spaceBetweenA
 
     var svgGroups = [];
     var featureITree = new IntervalTree(sequenceLength / 2);
+    var maxYOffset = 0;
 
     features.forEach((feature, index) => {
         let {
@@ -22,6 +23,7 @@ export default function Features({features = [], annotationHeight, spaceBetweenA
         }
 
         let offset = getYOffset(featureITree, start, end);
+        maxYOffset = Math.max(maxYOffset, offset);
         featureITree.add(start, end, null, {...feature, yOffset: offset});
 
         offset *= annotationHeight + spaceBetweenAnnotations;
@@ -38,7 +40,7 @@ export default function Features({features = [], annotationHeight, spaceBetweenA
         );
     });
 
-    var totalAnnotationHeight = svgGroups.length * (annotationHeight + spaceBetweenAnnotations);
+    var totalAnnotationHeight = maxYOffset * (annotationHeight * spaceBetweenAnnotations);
 
     return {
         component: (

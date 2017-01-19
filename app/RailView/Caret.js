@@ -5,16 +5,16 @@ export const draggableClassNames = ['selectionStart', 'selectionEnd', 'caretSvg'
     return obj
 }, {});
 
-export default function Caret ({caretPosition, sequenceLength, className}) {
+export default function Caret ({caretPosition, sequenceLength, height, className}) {
     return (
         <line
             className={className}
             strokeWidth='1px'
             style={ { opacity: 9, zIndex: 100,  cursor: "ew-resize", vectorEffect: 'non-scaling-stroke' } }//tnr: the classname needs to be cursor here!
             x1={caretPosition}
-            y1={-4}
+            y1={0}
             x2={caretPosition}
-            y2={8}
+            y2={height}
             stroke="blue"
             />
     )
