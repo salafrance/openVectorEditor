@@ -34,6 +34,8 @@ module.exports = {
     currentUserEnzymesList: COMMON_ENZYMES, //edited, not saved list of active enzymes
     embedded: true,
     fastDigestEnzymes: FAST_DIGEST,
+    fragments: [],
+    fragmentsNum: 1,
     history: [],
     historyIdx: -1,
     mapViewTickSpacing: 40,
@@ -51,6 +53,7 @@ module.exports = {
     showAxis: true,
     showCircular: true,
     showCutsites: false,
+    showGelDigestDialog: false,
     showFeatures: true,
     showLinear: true,
     showOrfModal: false,

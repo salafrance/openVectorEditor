@@ -3,7 +3,8 @@ import React, { PropTypes } from 'react';
 
 // Cerebral
 import { Decorator as Cerebral } from 'cerebral-view-react';
-import RestrictionEnzymeManager from './RectrictionEnzymeManager/RestrictionEnzymeManager';
+import RestrictionEnzymeManager from './RestrictionEnzymeManager/RestrictionEnzymeManager';
+import DigestionSimulation from './GelDigest/DigestionSimulation';
 
 // Material UI
 import BothViewsIcon from 'material-ui/lib/svg-icons/av/art-track';
@@ -63,8 +64,12 @@ export default class ToolBar extends React.Component {
             savedIdx
         } = this.props;
 
-        var dialog = (
+        var restrictionDialog = (
             <RestrictionEnzymeManager />
+        );
+
+        var gelDialog = (
+            <DigestionSimulation />
         );
 
         // show/hide views buttons that only appear in embedded mode
@@ -136,7 +141,7 @@ export default class ToolBar extends React.Component {
                                 let file = this.files[0];
                                  signals.clickLoadFile({inputFile: file});
                             }
-                        }} 
+                        }}
                         />
                 }
                 <input type="file" id="uploadFileInput" style={{display:'none'}} onChange={function() {
@@ -242,9 +247,11 @@ export default class ToolBar extends React.Component {
                         >
                         <SaveIcon />
                     </IconButton>
+
                     <IconMenu iconButtonElement={fileButtonElement} openDirection="bottom-right">
                         {fileMenuItems}
                     </IconMenu>
+
                     <IconButton
                         label="Dialog"
                         tooltip="Manage Restriction Enzymes"
@@ -254,7 +261,19 @@ export default class ToolBar extends React.Component {
                         >
                         <EnzymesIcon />
                     </IconButton>
-                    { dialog }
+                    { restrictionDialog }
+
+                    <IconButton
+                        label="Dialog"
+                        tooltip="Simulate Digestion"
+                        onTouchTap={function() {
+                            signals.gelDigestDisplay();
+                        }}
+                        >
+                        <EnzymesIcon />
+                    </IconButton>
+                    { gelDialog }
+
                 </ToolbarGroup>
             </Toolbar>
         );

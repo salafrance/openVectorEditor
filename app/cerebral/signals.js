@@ -58,6 +58,10 @@ export default function(options) {
             }]
         ],
 
+        createFragmentsLines: [
+            a.createFragmentsLines
+        ],
+        
         cutsiteClicked: c.selectAnnotation(a),
 
         editorClicked: [
@@ -104,6 +108,10 @@ export default function(options) {
         ],
 
         featureClicked: c.selectAnnotation(a),
+
+        gelDigestDisplay: [
+            a.gelDigestDisplay
+        ],
 
         jumpToRow: [
             a.jumpToRow
