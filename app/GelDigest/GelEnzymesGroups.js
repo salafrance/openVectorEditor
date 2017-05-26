@@ -2,10 +2,8 @@ import React, {PropTypes} from 'react';
 import {Decorator as Cerebral} from 'cerebral-view-react';
 import ReactList from 'react-list';
 import List from 'material-ui/lib/lists/list';
-// import ListItem from 'material-ui/lib/lists/list-item';
-// import Checkbox from 'material-ui/lib/checkbox';
 import RaisedButton from 'material-ui/lib/raised-button';
-import styles from './manager-list.scss';
+import styles from '../RestrictionEnzymeManager/manager-list.scss';
 
 const DropDownMenu = require('material-ui/lib/drop-down-menu');
 
@@ -16,10 +14,10 @@ const DropDownMenu = require('material-ui/lib/drop-down-menu');
     MITBBEnzymes: ['MITBBEnzymes'],
     fastDigestEnzymes: ['fastDigestEnzymes'],
     currentEnzymesList: ['currentEnzymesList'],
-    currentUserEnzymesList: ['currentUserEnzymesList']
+    // currentUserEnzymesList: ['currentUserEnzymesList']
 })
 
-export default class EnzymesGroups extends React.Component {
+export default class GelEnzymesGroups extends React.Component {
     constructor(props) {
         super(props);
         this.props.signals.chooseEnzymeList({selectedList: this.props.commonEnzymes});
@@ -101,7 +99,9 @@ export default class EnzymesGroups extends React.Component {
     render() {
         var {
             currentUserEnzymesList,
-            signals
+            signals,
+            addUserEnzyme,
+            addAllUserEnzymes,
         } = this.props;
         var currentEnzymesList = this.state.currentEnzymesList;
         // #cceeff
@@ -168,8 +168,7 @@ export default class EnzymesGroups extends React.Component {
                             key = { index }
                             onClick = {function () {
                                         if (enzyme !== "no matches") {
-                                            signals.editUserEnzymes({currentUserList: currentUserEnzymesList,
-                                            enzyme: enzyme, action: "toggle" })
+                                            addUserEnzyme(enzyme)
                                         }
                                     }}
                             >
@@ -183,8 +182,7 @@ export default class EnzymesGroups extends React.Component {
                     label="Add all"
                     secondary={true}
                     onTouchTap={function () {
-                        signals.editUserEnzymes({currentUserList: currentUserEnzymesList,
-                            currentEnzymesList: currentEnzymesList, action: "add all"});
+                        addAllUserEnzymes();
                     }}
                     />
             </div>

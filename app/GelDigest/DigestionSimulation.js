@@ -6,8 +6,8 @@ import Paper from 'material-ui/lib/paper';
 import GridList from 'material-ui/lib/grid-list/grid-list';
 import GridTile from 'material-ui/lib/grid-list/grid-tile';
 
-import ActiveEnzymes from '../RestrictionEnzymeManager/ActiveEnzymes.js';
-import EnzymesGroups from '../RestrictionEnzymeManager/EnzymesGroups.js';
+import ActiveEnzymes from './ActiveGelEnzymes';
+import EnzymesGroups from './GelEnzymesGroups';
 import Ladder from './Ladder';
 
 const Dialog = require('material-ui/lib/dialog');
@@ -16,23 +16,60 @@ const Dialog = require('material-ui/lib/dialog');
     showGelDigestDialog: ['showGelDigestDialog'],
     originalUserEnzymesList: ['originalUserEnzymesList'],
     currentUserEnzymesList: ['currentUserEnzymesList'],
+    currentEnzymesList: ['currentEnzymesList'],
 })
 
 export default class DigestionSimulation extends React.Component {
     constructor(props) {
         super(props);
+
+        this.state = {
+            currentUserEnzymesList: this.props.currentUserEnzymesList,
+            open: false
+        };
     }
 
-    state = {
-        open: false,
-    };
+    addUserEnzyme(enzyme) {
+        var editedList = this.state.currentUserEnzymesList.slice();
+        var index = editedList.indexOf(enzyme);
+        if (index < 0) {
+            editedList.push(enzyme);
+            editedList.sort();
+        } else {
+            editedList.splice(index, 1);
+        }
+        this.setState({ currentUserEnzymesList: editedList });
+    }
+
+    addAllUserEnzymes() {
+        var editedList = this.state.currentUserEnzymesList.slice();
+        var list = this.props.currentEnzymesList;
+        for (var i=0; i<list.length; i++) {
+            if (editedList.indexOf(list[i]) < 0) {
+                editedList.push(list[i]);
+            }
+        }
+        editedList.sort();
+        this.setState({ currentUserEnzymesList: editedList });
+    }
+
+    removeUserEnzyme(enzyme) {
+        var editedList = this.state.currentUserEnzymesList.slice();
+        var index = editedList.indexOf(enzyme);
+        editedList.splice(index, 1);
+        this.setState({ currentUserEnzymesList: editedList });
+    }
+
+    removeAllUserEnzymes() {
+        this.setState({ currentUserEnzymesList: [] });
+    }
 
     render () {
         var {
             signals,
             showGelDigestDialog,
             originalUserEnzymesList,
-            currentUserEnzymesList
+            // currentUserEnzymesList
         } = this.props;
 
         var gridTileTitleStyle = {
@@ -42,13 +79,21 @@ export default class DigestionSimulation extends React.Component {
 
         var tileLeft = (
             <div>
-                <EnzymesGroups />
+                <EnzymesGroups
+                    currentUserEnzymesList={this.state.currentUserEnzymesList}
+                    addUserEnzyme={this.addUserEnzyme.bind(this)}
+                    addAllUserEnzymes={this.addAllUserEnzymes.bind(this)}
+                />
             </div>
         );
 
         var tileCenter = (
             <div>
-                <ActiveEnzymes />
+                <ActiveEnzymes
+                    currentUserEnzymesList={this.state.currentUserEnzymesList}
+                    removeUserEnzyme={this.removeUserEnzyme.bind(this)}
+                    removeAllUserEnzymes={this.removeAllUserEnzymes.bind(this)}
+                    />
             </div>
         );
 
@@ -70,8 +115,9 @@ export default class DigestionSimulation extends React.Component {
             <div>
                 <GridList
                     cols={3}
-                    cellHeight={450}
-                    padding={5}
+                    cellHeight={400}
+                    cellWidth={300}
+                    padding={10}
                     >
                     <GridTile
                         rows={1}

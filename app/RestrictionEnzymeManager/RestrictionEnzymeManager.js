@@ -6,6 +6,7 @@ import GridList from 'material-ui/lib/grid-list/grid-list';
 import GridTile from 'material-ui/lib/grid-list/grid-tile';
 import LeftTile from './EnzymesGroups';
 import RightTile from './ActiveEnzymes';
+var assign = require('lodash/object/assign');
 
 const Dialog = require('material-ui/lib/dialog');
 
