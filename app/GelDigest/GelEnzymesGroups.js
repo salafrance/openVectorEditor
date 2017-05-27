@@ -14,7 +14,7 @@ const DropDownMenu = require('material-ui/lib/drop-down-menu');
     MITBBEnzymes: ['MITBBEnzymes'],
     fastDigestEnzymes: ['fastDigestEnzymes'],
     currentEnzymesList: ['currentEnzymesList'],
-    // currentUserEnzymesList: ['currentUserEnzymesList']
+    gelDigestEnzymes: ['gelDigestEnzymes']
 })
 
 export default class GelEnzymesGroups extends React.Component {
@@ -61,14 +61,13 @@ export default class GelEnzymesGroups extends React.Component {
     };
 
     isSelected = (enzyme) => {
-        return (this.props.currentUserEnzymesList.indexOf(enzyme) >= 0);
+        return (this.props.gelDigestEnzymes.indexOf(enzyme) >= 0);
     };
 
     filterList() {
         var string = this.refs.enzymeField.value;
         var currentEnzymesList = this.props.currentEnzymesList;
         this.setState({ input: string });
-
         var regex = new RegExp('.*', 'i');
         if (string && string.length > 0) {
             try {
@@ -98,15 +97,13 @@ export default class GelEnzymesGroups extends React.Component {
 
     render() {
         var {
-            currentUserEnzymesList,
             signals,
-            addUserEnzyme,
-            addAllUserEnzymes,
+            gelDigestEnzymes,
         } = this.props;
         var currentEnzymesList = this.state.currentEnzymesList;
         // #cceeff
         var selectedStyle = {
-            backgroundColor:'#00bcd4',
+            backgroundColor:'#a065d3',
             borderBottom:'1px solid white',
             color:'white',
             padding:'10px 16px',
@@ -142,7 +139,7 @@ export default class GelEnzymesGroups extends React.Component {
                     underlineStyle = {{opacity: 0}}
                     iconStyle = {{fill: "black"}}
                     label="Enzyme Groups"
-                    labelStyle = {{fontWeight: 650, fontSize: 17, color: "black"}}
+                    labelStyle = {{fontSize: 15, color: "black", lineHeight:'48px'}}
                     />
 
                 <input
@@ -168,7 +165,8 @@ export default class GelEnzymesGroups extends React.Component {
                             key = { index }
                             onClick = {function () {
                                         if (enzyme !== "no matches") {
-                                            addUserEnzyme(enzyme)
+                                            signals.editDigestEnzymes({currentUserList: gelDigestEnzymes,
+                                            enzyme: enzyme, action: "toggle" })
                                         }
                                     }}
                             >
@@ -178,11 +176,12 @@ export default class GelEnzymesGroups extends React.Component {
                 </List>
 
                 <RaisedButton
-                    className={styles.raisedButton}
+                    className={styles.raisedPurpleButton}
                     label="Add all"
                     secondary={true}
                     onTouchTap={function () {
-                        addAllUserEnzymes();
+                        signals.editDigestEnzymes({currentUserList: gelDigestEnzymes,
+                            currentEnzymesList: currentEnzymesList, action: "add all"});
                     }}
                     />
             </div>

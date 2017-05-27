@@ -14,9 +14,6 @@ const Dialog = require('material-ui/lib/dialog');
 
 @Cerebral({
     showGelDigestDialog: ['showGelDigestDialog'],
-    originalUserEnzymesList: ['originalUserEnzymesList'],
-    currentUserEnzymesList: ['currentUserEnzymesList'],
-    currentEnzymesList: ['currentEnzymesList'],
 })
 
 export default class DigestionSimulation extends React.Component {
@@ -24,76 +21,31 @@ export default class DigestionSimulation extends React.Component {
         super(props);
 
         this.state = {
-            currentUserEnzymesList: this.props.currentUserEnzymesList,
             open: false
         };
-    }
-
-    addUserEnzyme(enzyme) {
-        var editedList = this.state.currentUserEnzymesList.slice();
-        var index = editedList.indexOf(enzyme);
-        if (index < 0) {
-            editedList.push(enzyme);
-            editedList.sort();
-        } else {
-            editedList.splice(index, 1);
-        }
-        this.setState({ currentUserEnzymesList: editedList });
-    }
-
-    addAllUserEnzymes() {
-        var editedList = this.state.currentUserEnzymesList.slice();
-        var list = this.props.currentEnzymesList;
-        for (var i=0; i<list.length; i++) {
-            if (editedList.indexOf(list[i]) < 0) {
-                editedList.push(list[i]);
-            }
-        }
-        editedList.sort();
-        this.setState({ currentUserEnzymesList: editedList });
-    }
-
-    removeUserEnzyme(enzyme) {
-        var editedList = this.state.currentUserEnzymesList.slice();
-        var index = editedList.indexOf(enzyme);
-        editedList.splice(index, 1);
-        this.setState({ currentUserEnzymesList: editedList });
-    }
-
-    removeAllUserEnzymes() {
-        this.setState({ currentUserEnzymesList: [] });
     }
 
     render () {
         var {
             signals,
             showGelDigestDialog,
-            originalUserEnzymesList,
-            // currentUserEnzymesList
         } = this.props;
 
         var gridTileTitleStyle = {
             textAlign: "center",
             color: "black",
+            fontSize: '15px'
         };
 
         var tileLeft = (
             <div>
-                <EnzymesGroups
-                    currentUserEnzymesList={this.state.currentUserEnzymesList}
-                    addUserEnzyme={this.addUserEnzyme.bind(this)}
-                    addAllUserEnzymes={this.addAllUserEnzymes.bind(this)}
-                />
+                <EnzymesGroups />
             </div>
         );
 
         var tileCenter = (
             <div>
-                <ActiveEnzymes
-                    currentUserEnzymesList={this.state.currentUserEnzymesList}
-                    removeUserEnzyme={this.removeUserEnzyme.bind(this)}
-                    removeAllUserEnzymes={this.removeAllUserEnzymes.bind(this)}
-                    />
+                <ActiveEnzymes />
             </div>
         );
 
@@ -104,11 +56,7 @@ export default class DigestionSimulation extends React.Component {
         );
 
         var centerTileTitle = (
-            <h4 style={gridTileTitleStyle}>Active enzymes</h4>
-        );
-
-        var rightTileTitle = (
-            <h4 style={gridTileTitleStyle}>Ladder</h4>
+            <div style={gridTileTitleStyle}>Active enzymes</div>
         );
 
         var gelDigestContentGrid = (
@@ -136,9 +84,6 @@ export default class DigestionSimulation extends React.Component {
                     <GridTile
                         rows={1}
                         cols={1}
-                        title={rightTileTitle}
-                        titlePosition={"top"}
-                        titleBackground="#E0E0E0"
                         >
                         {tileRight}
                     </GridTile>
@@ -146,12 +91,12 @@ export default class DigestionSimulation extends React.Component {
             </div>
         );
 
-        var toOpen = this.props.showGelDigestDialog;
+        var toOpen = showGelDigestDialog;
 
         var actions = [
             <FlatButton
                 label={"OK"}
-                style={{color: "#03A9F4"}}
+                style={{color: "#a065d3"}}
                 onTouchTap={function() {
                     signals.gelDigestDisplay();
                 }}

@@ -54,7 +54,7 @@ export default class ActiveEnzymes extends React.Component {
                 </List>
 
                 <RaisedButton
-                    className={styles.raisedButton}
+                    className={styles.raisedBlueButton}
                     label="Remove all"
                     primary={true}
                     onTouchTap={function () {

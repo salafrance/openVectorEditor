@@ -36,6 +36,7 @@ export default class RestrictionEnzymeManager extends  React.Component {
         var tileTitleStyle = {
             textAlign: "center",
             color: "black",
+            fontSize: '15px'
         };
 
         var tileLeft = (
@@ -96,7 +97,7 @@ export default class RestrictionEnzymeManager extends  React.Component {
                 />,
             <FlatButton
                 label={"Apply"}
-                style={{color: "#03A9F4"}}
+                style={{color: "#00bcd4"}}
                 onTouchTap={function() {
                         signals.updateUserEnzymes({
                             selectedButton: "Apply",

@@ -142,7 +142,7 @@ export default class EnzymesGroups extends React.Component {
                     underlineStyle = {{opacity: 0}}
                     iconStyle = {{fill: "black"}}
                     label="Enzyme Groups"
-                    labelStyle = {{fontWeight: 650, fontSize: 17, color: "black"}}
+                    labelStyle = {{fontSize: 15, color: "black", lineHeight:'48px'}}
                     />
 
                 <input
@@ -179,7 +179,7 @@ export default class EnzymesGroups extends React.Component {
                 </List>
 
                 <RaisedButton
-                    className={styles.raisedButton}
+                    className={styles.raisedBlueButton}
                     label="Add all"
                     secondary={true}
                     onTouchTap={function () {

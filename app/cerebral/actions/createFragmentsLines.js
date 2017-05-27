@@ -1,6 +1,13 @@
-module.exports = function createFragmentsLines({input, state, output}) {
-    var geneRuler = state.get('currentGeneRuler');
-    var cutsites = state.get('cutsites');
+var getCutsitesFromSequence = require('ve-sequence-utils/getCutsitesFromSequence');
+
+module.exports = function createFragmentsLines({input: {geneRuler, enzymes}, state, output}) {
+    if (geneRuler === "geneRuler1kb") {
+        geneRuler = [20000, 10000, 7000, 5000, 4000, 3000, 2000, 1500, 1000, 700, 500, 400, 300, 200, 75];
+    } else {
+        geneRuler = [3000, 2000, 1500, 1200, 1000, 900, 800, 700, 600, 500, 400, 300, 200, 100];
+    }
+    
+    var cutsites = state.get('digestCutsites');
     var upperBoundary = geneRuler[0]; // offsets start from this position
 
     function sortNumber(a,b) {

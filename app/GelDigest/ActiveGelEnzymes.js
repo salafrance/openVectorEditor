@@ -8,6 +8,10 @@ import List from 'material-ui/lib/lists/list';
 import ListItem from 'material-ui/lib/lists/list-item';
 import styles from '../RestrictionEnzymeManager/manager-list.scss';
 
+@Cerebral({
+    gelDigestEnzymes: ['gelDigestEnzymes'],
+})
+
 export default class ActiveGelEnzymes extends React.Component {
     constructor(props) {
         super(props);
@@ -18,13 +22,13 @@ export default class ActiveGelEnzymes extends React.Component {
             signals,
             removeUserEnzyme,
             removeAllUserEnzymes,
-            currentUserEnzymesList,
+            gelDigestEnzymes,
         } = this.props;
 
         return (
             <div>
                 <List className={styles.managerListRight}>
-                    {currentUserEnzymesList.map((enzyme, index) => (
+                    {gelDigestEnzymes.map((enzyme, index) => (
                         <ListItem
                             key={index}
                             style={{maxHeight:'40px', fontSize:'11pt', verticalAlign:'middle', borderBottom:'1px solid #E0E0E0'}}
@@ -32,7 +36,8 @@ export default class ActiveGelEnzymes extends React.Component {
                             rightIconButton={
                                 <IconButton
                                     onTouchTap={function() {
-                                        removeUserEnzyme(enzyme);
+                                        signals.editDigestEnzymes({currentUserList: gelDigestEnzymes,
+                                            enzyme: enzyme, action: "remove"});
                                     }}
                                     >
                                     <CloseIcon />
@@ -43,11 +48,11 @@ export default class ActiveGelEnzymes extends React.Component {
                 </List>
 
                 <RaisedButton
-                    className={styles.raisedButton}
+                    className={styles.raisedPurpleButton}
                     label="Remove all"
                     primary={true}
                     onTouchTap={function () {
-                        removeAllUserEnzymes();
+                        signals.editDigestEnzymes({currentUserList: gelDigestEnzymes, action: "remove all"});
                     }}
                     />
             </div>

@@ -1,64 +1,75 @@
 import React, {PropTypes} from 'react';
 import {Decorator as Cerebral} from 'cerebral-view-react';
-
-import Paper from 'material-ui/lib/paper';
 import styles from './ruler.scss';
 
-const DropDownMenu = require('material-ui/lib/drop-down-menu');
+import List from 'material-ui/lib/lists/list';
+import DropDownMenu from 'material-ui/lib/drop-down-menu';
 
 @Cerebral({
-    userEnzymeList: ['userEnzymeList'],
-    currentGeneRuler: ['geneRuler1kb'],
-    cutsites: ['cutsites'],
+    gelDigestEnzymes: ['gelDigestEnzymes'],
     fragments: ['fragments'],
     fragmentsNum: ['fragmentsNum'],
 })
 
-export default class EnzymesLists extends React.Component {
+export default class Ladder extends React.Component {
     constructor(props) {
         super(props);
-        // this.props.signals.createFragmentsLines();
         this.state = {
-            value: 1,
-            currentGeneRuler: 'geneRuler1kb'
-        };
+            geneRuler: 'geneRuler1kb'
+        }
+        this.props.signals.createFragmentsLines({ geneRuler: 'geneRuler1kb', enzymes: this.props.gelDigestEnzymes });
     }
 
     handleChange = (event, index, value) => {
-        // this.setState({value: value});
-        // switch (value.text) {
-        //     case 'GeneRuler 1kb Plus DNA':
-        //         this.props.signals.chooseGeneRuler({selectedRuler: this.props.geneRuler1kb});
-        //         break;
-        //     case 'GeneRuler 100 bp Plus DNA':
-        //         this.props.signals.chooseGeneRuler({selectedRuler: this.props.geneRuler100bp});
-        //         break;
-        //     default:
-        //         this.props.signals.chooseGeneRuler({selectedRuler: this.props.geneRuler1kb});
-        // }
-        this.props.signals.createFragmentsLines();
+        var geneRuler;
+        switch (value.text) {
+            case 'GeneRuler 100bp + DNA':
+                geneRuler = "geneRuler100bp";
+                break;
+            default:
+                geneRuler = "geneRuler1kb";
+        }
+        this.setState({ geneRuler: geneRuler });
+        this.props.signals.createFragmentsLines({ geneRuler: geneRuler, enzymes: this.props.gelDigestEnzymes });
     };
+
+    componentWillReceiveProps(newProps) {
+        if (newProps.gelDigestEnzymes !== this.props.gelDigestEnzymes) {
+            this.props.signals.createFragmentsLines({ geneRuler: this.state.geneRuler, enzymes: this.props.gelDigestEnzymes });
+        }
+    }
 
     render() {
         var {
-            userEnzymeList,
+            gelDigestEnzymes,
             fragments,
             fragmentsNum,
         } = this.props;
 
         let menuItems = [
-            { payload: '1', text: 'GeneRuler 1kb Plus DNA' },
-            { payload: '2', text: 'GeneRuler 100 bp Plus DNA' },
+            { payload: '1', text: 'GeneRuler 1kb + DNA' },
+            { payload: '2', text: 'GeneRuler 100bp + DNA' },
         ];
 
         var fragmentsCount;
-        if (userEnzymeList.length == 0) {
+        var pluralFragments = "fragments";
+        var pluralEnzymes = "enzymes";
+        if (gelDigestEnzymes.length == 0) {
             fragmentsCount = (
-                <div style={{height:"30px", width:"100%"}} className={styles.fragmentsNumLabel}>No digestion</div>
+                <div className={styles.fragmentsNumLabel}>No digestion</div>
             );
         } else {
+            if (fragmentsNum === 1) {
+                pluralFragments = "fragment";
+            }
+            if (gelDigestEnzymes.length === 1) {
+                pluralEnzymes = "enzyme";
+            }
             fragmentsCount = (
-                <div style={{height:"30px", width:"100%"}} className={styles.fragmentsNumLabel}>{fragmentsNum} fragment(s), {userEnzymeList.length} enzymes</div>
+                <div className={styles.fragmentsNumLabel}>
+                    <div style={{float:'left'}}>{fragmentsNum} {pluralFragments}</div>
+                    <div style={{float:'right'}}>{gelDigestEnzymes.length} {pluralEnzymes}</div>
+                </div>
             );
         }
 
@@ -67,15 +78,17 @@ export default class EnzymesLists extends React.Component {
                 <DropDownMenu
                     onChange={this.handleChange}
                     menuItems={menuItems}
-                    style={{backgroundColor: "#311B92"}}
+                    style = {{backgroundColor: "#E0E0E0", zIndex:'20', width:'100%'}}
                     underlineStyle={{opacity: 0}}
-                    iconStyle={{color: "#000000"}}
-                    labelStyle={{fontWeight: 650, fontSize: 15, color: "#FFFFFF"}}
-                />
+                    iconStyle={{fill: "black"}}
+                    labelStyle={{fontSize: 15, color: "black", lineHeight:'48px'}}
+                    />
+
                 {fragmentsCount}
-                <Paper className={styles.block}>
+
+                <List className={styles.managerListLadder}>
                     {fragments.map((fragment, index) => (
-                        <div className={styles.tooltip}>
+                        <div className={styles.tooltip} key={index}>
                             <span className={styles.tooltiptext}>
                                 {fragment.position}
                             </span>
@@ -85,7 +98,7 @@ export default class EnzymesLists extends React.Component {
                             />
                         </div>
                     ))}
-                </Paper>
+                </List>
             </div>
         );
     }

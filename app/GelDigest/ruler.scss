@@ -1,3 +1,12 @@
+.managerListLadder {
+  height: 265px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  border: 1px solid #E0E0E0;
+  padding: 0 !important;
+  margin-bottom: 15px;
+}
+
 .left {
   margin-right: 55%;
   margin-left: 5px;
@@ -49,5 +58,8 @@
 
 .fragmentsNumLabel {
   text-align: left;
-  padding-right: 5px;
+  padding: 0 5px;
+  color: rgb(51,51,51);
+  height: 30px;
+  width: 100%;
 }

@@ -35,7 +35,8 @@ module.exports = {
     embedded: true,
     fastDigestEnzymes: FAST_DIGEST,
     fragments: [],
-    fragmentsNum: 1,
+    fragmentsNum: 0,
+    gelDigestEnzymes: COMMON_ENZYMES,
     history: [],
     historyIdx: -1,
     mapViewTickSpacing: 40,
@@ -134,6 +135,38 @@ module.exports = {
                 cutsite.id = i;
                 cutsite.name = cutsite.restrictionEnzyme.name;
                 cutsite.numberOfCuts = cutsitesByName[cutsite.restrictionEnzyme.name].length;
+                cutsitesArray.push(cutsite);
+            }
+            return cutsitesArray;
+        }
+    ]),
+    gelEnzymes: deriveData([
+        ['gelDigestEnzymes'],
+        function(userEnzymeList) {
+            return userEnzymeList.map(function(enzymeName) {
+                return enzymeList[enzymeName.toLowerCase()];
+            });
+        }
+    ]),
+    digestCutsitesByName: deriveData([
+        ['sequenceData', 'sequence'],
+        ['sequenceData', 'circular'],
+        ['gelEnzymes'],
+        getCutsitesFromSequence
+    ]),
+    digestCutsites: deriveData([
+        ['digestCutsitesByName'],
+        function (digestCutsitesByName) {
+            var cutsites = [];
+            Object.keys(digestCutsitesByName).forEach(function (key) {
+                cutsites = cutsites.concat(digestCutsitesByName[key]);
+            });
+            var cutsitesArray = [];
+            for (let i = 0; i < cutsites.length; i++) {
+                var cutsite = Object.assign({}, cutsites[i])
+                cutsite.id = i;
+                cutsite.name = cutsite.restrictionEnzyme.name;
+                cutsite.numberOfCuts = digestCutsitesByName[cutsite.restrictionEnzyme.name].length;
                 cutsitesArray.push(cutsite);
             }
             return cutsitesArray;
