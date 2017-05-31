@@ -149,7 +149,7 @@ export default class EnzymesGroups extends React.Component {
                     ref="enzymeField"
                     type="text"
                     placeholder="search"
-                    style={{paddingLeft:'5px', marginBottom:'5px', width:'100%'}}
+                    style={{paddingLeft:'5px', marginBottom:'4px', width:'100%'}}
                     value={this.state.input.toString()}
                     onChange={this.filterList.bind(this)}
                     />

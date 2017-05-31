@@ -1,6 +1,6 @@
 .managerListLadder {
   height: 265px;
-  overflow: hidden;
+  overflow: visible;
   border: 1px solid #E0E0E0;
   padding: 0 !important;
   position: fixed;
@@ -28,14 +28,26 @@
 
 .tooltip .tooltiptext {
   visibility: hidden;
+  position: absolute;
   width: auto;
   background-color: black;
   color: white;
   text-align: left;
   padding: 5px;
   font-size: 7pt;
+  bottom: 5px;
   white-space: nowrap;
   border-radius: 6px;
+}
+.tooltip .tooltiptext::after {
+    content: " "; /* i don't know what this content attribute does, but it works... */
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: black transparent transparent transparent;
 }
 
 .tooltip:hover .tooltiptext {

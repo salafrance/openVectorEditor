@@ -22,8 +22,8 @@ module.exports = function createFragmentsLines({input: {geneRuler, enzymes}, sta
         if (a.position) {
             return a.position - b.position;
         }
-        if (a.length) {
-            return a.length - b.length;
+        if (a.segmentLength) {
+            return a.segmentLength - b.segmentLength;
         }
     }
 
@@ -36,12 +36,13 @@ module.exports = function createFragmentsLines({input: {geneRuler, enzymes}, sta
         cutsite.position = position;
         cutsitesData.push(cutsite);
     }
-    // {{}} need to consider overlapping cutsites?
+
+    // circular or linear
     cutsitesData = cutsitesData.sort(sortNumber);
     if (circular) {
         var lines = [ // if circular, fragment wraps around origin
-            { // {{}} length is a terrible variable name
-                length: sequenceLength - cutsitesData[cutsitesData.length-1].start + cutsitesData[0].end,
+            {
+                segmentLength: sequenceLength - cutsitesData[cutsitesData.length-1].start + cutsitesData[0].end,
                 enzyme1: cutsitesData[cutsitesData.length-1].start + '('+cutsitesData[cutsitesData.length-1].name+')',
                 enzyme2: cutsitesData[0].end + '('+cutsitesData[0].name+')'
             }
@@ -49,21 +50,22 @@ module.exports = function createFragmentsLines({input: {geneRuler, enzymes}, sta
     } else {
         var lines = [ // if not ciruclar, need to split into two seperate fragments
             {
-                length: sequenceLength - cutsitesData[cutsitesData.length-1].start,
+                segmentLength: sequenceLength - cutsitesData[cutsitesData.length-1].start,
                 enzyme1: cutsitesData[cutsitesData.length-1].start + '('+cutsitesData[cutsitesData.length-1].name+')',
                 enzyme2: sequenceLength
             },
             {
-                length: cutsitesData[0].end,
+                segmentLength: cutsitesData[0].end,
                 enzyme1: 0,
                 enzyme2: cutsitesData[0].end + '('+cutsitesData[0].name+')'
             }
         ];
     }
 
+    // get fragments
     for (var i=0; i<cutsitesData.length-1; i++) {
         lines.push({
-            length: Math.abs(cutsitesData[i+1].end - cutsitesData[i].start),
+            segmentLength: Math.abs(cutsitesData[i+1].end - cutsitesData[i].start),
             enzyme1: cutsitesData[i].start + ' ('+cutsitesData[i].name+')',
             enzyme2: cutsitesData[i+1].end + ' ('+cutsitesData[i+1].name+')'
         });
@@ -73,15 +75,16 @@ module.exports = function createFragmentsLines({input: {geneRuler, enzymes}, sta
 
     let fragmentsNum = 0; // counter for number of fragments
     let lineWidth = 1;
-    let boxHeight = 300;
-    var upperBoundary = lines[0].length > geneRuler[0] ? lines[0].length : geneRuler[0];
+    let boxHeight = 275;
+    var upperBoundary = lines[0].segmentLength > geneRuler[0] ? lines[0].segmentLength : geneRuler[0];
     let fragments = [];
 
+    // position fragments on the ladder
     for (let iLeft = 0, iRight = 0; ; ) {
-        if (iLeft == geneRuler.length && iRight == lines.length) {
+        if (iLeft == geneRuler.length && iRight === lines.length) {
             break;
 
-        } else if (iRight == lines.length || geneRuler[iLeft] >= lines[iRight].length) {
+        } else if (iRight == lines.length || geneRuler[iLeft] >= lines[iRight].segmentLength) {
             fragments.push({
                 align: "left",
                 bottom: (boxHeight * Math.log(geneRuler[iLeft]) / Math.log(upperBoundary)) - 25,
@@ -93,15 +96,15 @@ module.exports = function createFragmentsLines({input: {geneRuler, enzymes}, sta
             });
             iLeft++;
 
-        } else if (iLeft == geneRuler.length || geneRuler[iLeft] < lines[iRight].length) {
+        } else if (iLeft == geneRuler.length || geneRuler[iLeft] < lines[iRight].segmentLength) {
             fragments.push({
                 align: "right",
-                bottom: (boxHeight * Math.log(lines[iRight].length) / Math.log(upperBoundary)) - 25,
+                bottom: (boxHeight * Math.log(lines[iRight].segmentLength) / Math.log(upperBoundary)) - 25,
                 left: 75,
                 width: '75%',
                 borderWidth: lineWidth,
-                position: lines[iRight].length,
-                tooltip: lines[iRight].length + ' : ' + lines[iRight].enzyme1 + '..' + lines[iRight].enzyme2
+                position: lines[iRight].segmentLength,
+                tooltip: lines[iRight].segmentLength + ' : ' + lines[iRight].enzyme1 + ' .. ' + lines[iRight].enzyme2
             });
             fragmentsNum++;
             iRight++;

@@ -101,7 +101,7 @@ export default class GelEnzymesGroups extends React.Component {
             gelDigestEnzymes,
         } = this.props;
         var currentEnzymesList = this.state.currentEnzymesList;
-        // #cceeff
+
         var selectedStyle = {
             backgroundColor:'#a065d3',
             borderBottom:'1px solid white',
@@ -146,7 +146,7 @@ export default class GelEnzymesGroups extends React.Component {
                     ref="enzymeField"
                     type="text"
                     placeholder="search"
-                    style={{paddingLeft:'5px', marginBottom:'5px', width:'100%'}}
+                    style={{paddingLeft:'5px', marginBottom:'4px', width:'100%'}}
                     value={this.state.input.toString()}
                     onChange={this.filterList.bind(this)}
                     />
