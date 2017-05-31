@@ -22,12 +22,10 @@ export default class Ladder extends React.Component {
 
     handleChange = (event, index, value) => {
         var geneRuler;
-        switch (value.text) {
-            case 'GeneRuler 100bp + DNA':
-                geneRuler = "geneRuler100bp";
-                break;
-            default:
-                geneRuler = "geneRuler1kb";
+        if (value.text === 'GeneRuler 100bp + DNA') {
+            geneRuler = "geneRuler100bp";
+        } else {
+            geneRuler = "geneRuler1kb";
         }
         this.setState({ geneRuler: geneRuler });
         this.props.signals.createFragmentsLines({ geneRuler: geneRuler, enzymes: this.props.gelDigestEnzymes });
@@ -35,7 +33,7 @@ export default class Ladder extends React.Component {
 
     componentWillReceiveProps(newProps) {
         if (newProps.gelDigestEnzymes !== this.props.gelDigestEnzymes) {
-            this.props.signals.createFragmentsLines({ geneRuler: this.state.geneRuler, enzymes: this.props.gelDigestEnzymes });
+            this.props.signals.createFragmentsLines({ geneRuler: this.state.geneRuler, enzymes: newProps.gelDigestEnzymes });
         }
     }
 
@@ -88,14 +86,12 @@ export default class Ladder extends React.Component {
 
                 <List className={styles.managerListLadder}>
                     {fragments.map((fragment, index) => (
-                        <div className={styles.tooltip} key={index}>
+                        <div className={styles.tooltip} key={index}
+                            style={{bottom: fragment.bottom, left: fragment.left, width: fragment.width}}>
                             <span className={styles.tooltiptext}>
-                                {fragment.position}
+                                {fragment.tooltip}
                             </span>
-                            <hr
-                                className={fragment.align == "left" ? styles.left : styles.right}
-                                style={{marginTop: fragment.marginTop, borderWidth: fragment.borderWidth}}
-                            />
+                            <hr style={{margin:'0'}} className={fragment.align == "left" ? styles.left : styles.right}/>
                         </div>
                     ))}
                 </List>

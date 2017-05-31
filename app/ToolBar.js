@@ -26,6 +26,7 @@ import SearchIcon from 'material-ui/lib/svg-icons/action/search';
 import Toolbar from 'material-ui/lib/toolbar/toolbar';
 import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
 import UploadIcon from 'material-ui/lib/svg-icons/file/file-upload';
+import DigestionIcon from 'material-ui/lib/svg-icons/maps/local-dining';
 
 import Search from './Search.js'
 import styles from './tool-bar.css'
@@ -261,7 +262,6 @@ export default class ToolBar extends React.Component {
                         >
                         <EnzymesIcon />
                     </IconButton>
-                    { restrictionDialog }
 
                     <IconButton
                         label="Dialog"
@@ -270,8 +270,10 @@ export default class ToolBar extends React.Component {
                             signals.gelDigestDisplay();
                         }}
                         >
-                        <EnzymesIcon />
+                        <DigestionIcon />
                     </IconButton>
+
+                    { restrictionDialog }
                     { gelDialog }
 
                 </ToolbarGroup>
