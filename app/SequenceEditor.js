@@ -4,6 +4,8 @@ import ToolBar from './ToolBar';
 import StatusBar from './StatusBar';
 import SideBar from './SideBar';
 import Clipboard from './Clipboard';
+import AddBoxIcon from 'material-ui/lib/svg-icons/content/add-box';
+import IconButton from 'material-ui/lib/icon-button';
 import styles from './sequence-editor.css';
 
 var assign = require('lodash/object/assign');
@@ -49,7 +51,7 @@ export default class SequenceEditor extends React.Component {
         }.bind(this));
         this.props.signals.updateHistory({ newHistory: this.props.sequenceData });
     }
-    
+
     componentDidMount() {
         var {
             sequenceDataInserted,
@@ -142,6 +144,13 @@ export default class SequenceEditor extends React.Component {
         }
     }
 
+    openAddFeatureDisplay() {
+        this.setState({ editFeature: -1, selectedFeatures: [] });
+        this.props.signals.addFeatureModalDisplay();
+        this.props.signals.sidebarToggle({ sidebar: true });
+        this.props.signals.adjustWidth();
+    }
+
     render() {
         var {
             clipboardData,
@@ -149,6 +158,7 @@ export default class SequenceEditor extends React.Component {
             embedded,
             orfData,
             selectedSequenceString,
+            selectionLayer,
             sequenceData,
             showCircular,
             showRow,
@@ -161,6 +171,19 @@ export default class SequenceEditor extends React.Component {
         var sidebarStyle = {};
         // we need this position relative to place the controller bar in the sidebar
         Object.assign(sidebarStyle, {minWidth: '580px', overflow: 'hidden', borderRight: '1px solid #ccc', position: 'relative'}, (showSidebar) ? {} : {display: 'none'})
+
+        // add feature button that appears outside of sidebar when there's a selectionLayer
+        var addFeatureButton = <div></div>;
+        if (!showSidebar && selectionLayer.start > 0) {
+            addFeatureButton =
+                <IconButton
+                    style={{position:'absolute', bottom:'115px', left:'5px', zIndex:'500', backgroundColor:'rgba(255,255,255,0.5)'}}
+                    onTouchTap={this.openAddFeatureDisplay.bind(this)}
+                    tooltip="add feature"
+                    tooltipPosition="top-center">
+                    <AddBoxIcon />
+                </IconButton>
+        }
 
         // check if we have just circ or just row and pad it out a little
         // using the bitwise xor here might be a little sketchy
@@ -179,23 +202,26 @@ export default class SequenceEditor extends React.Component {
         if (sidebarType === 'Features') {
             table = (
                 <SideBar
-                   annotations={sequenceData.features}
-                   annotationType={sidebarType}
-                   />
+                    openAddFeatureDisplay={this.openAddFeatureDisplay}
+                    annotations={sequenceData.features}
+                    annotationType={sidebarType}
+                    />
             );
         } else if (sidebarType === 'Cutsites') {
             table = (
                 <SideBar
-                   annotations={cutsites}
-                   annotationType={sidebarType}
-                   />
+                    openAddFeatureDisplay={this.openAddFeatureDisplay}
+                    annotations={cutsites}
+                    annotationType={sidebarType}
+                    />
             );
         } else if (sidebarType === 'Orfs') {
             table = (
                 <SideBar
-                   annotations={orfData}
-                   annotationType={sidebarType}
-                   />
+                    openAddFeatureDisplay={this.openAddFeatureDisplay}
+                    annotations={orfData}
+                    annotationType={sidebarType}
+                    />
             );
         }
 
@@ -217,6 +243,8 @@ export default class SequenceEditor extends React.Component {
                     <div className={styles.sideBarSlot} id="sideBar" style={ sidebarStyle }>
                       {table}
                     </div>
+
+                    { addFeatureButton }
 
                     <div className={styles.circularViewSlot} id="circularView" style={ circularStyle }>
                         <CircularView showCircular={showCircular}/>
