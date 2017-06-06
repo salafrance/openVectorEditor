@@ -43,6 +43,7 @@ module.exports = {
     readOnly: true,
     rebaseEnzymes: REBASE,
     rowToJumpTo: null,
+    safeEditOn: true,
     savedIdx: 0,
     searchLayers: [],
     searchString: "",

@@ -187,9 +187,16 @@ export default function(options) {
             a.addAnnotations
         ],
 
+        // {{}} does this need to be a chain?
         backspacePressed: a.addEditModeOnly([
             a.checkLayerIsSelected, {
-                selected: [a.deleteSequence],
+                selected: [a.checkSafeEdit, {
+                    safeEditOn: [a.presentFeatures, {
+                        foundFeatures: [],
+                        noFeatures: [a.deleteSequence]
+                    }],
+                    safeEditOff: [a.deleteSequence]
+                }],
                 notSelected: [a.prepDeleteOneBack, a.deleteSequence]
             }
         ]),
@@ -202,6 +209,7 @@ export default function(options) {
             a.copySelection
         ],
 
+        // {{}} we may need to check safe edit here too
         cutSelection: [
             a.copySelection,
             a.checkLayerIsSelected, {
