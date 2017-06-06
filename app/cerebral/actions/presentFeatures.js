@@ -5,14 +5,13 @@ export default function presentFeatures({input, state, output}) {
     var selectionLayer = state.get('selectionLayer');
     // are there features in the selection range?
     var featuresPresent = [];
-    console.log(featuresPresent);
 
     function isFeatureInRange(range, feature) {
         // feature and range are tuples of (start, end)
         // return Boolean
         var inRange = false;
         // case: start and end are outside spanning range = T
-        if(range[0] > feature[0] && range[1] > feature[1])
+        if(feature[0] < range[0] && range[1] < feature[1])
             inRange = true;
         // case: start or end is in range = T includes case where start & end inside (inclusive)
         else if((feature[0] >= range[0] && feature[0] <= range[1]) 
@@ -28,21 +27,18 @@ export default function presentFeatures({input, state, output}) {
             feature = featuresInSeq[i]
             if(isFeatureInRange([rangeStart, rangeEnd], [feature.start, feature.end])) {
                 featuresPresent.push(feature)
-            }
+            } // else skip it
         }
     };
 
-    // this function is a mutator
+    // this function is a mutator of featuresPresent
     findFeaturesInRange(selectionLayer.start, selectionLayer.end);
-    console.log(featuresPresent);
 
     if (featuresPresent.length > 0) {
         output.foundFeatures({'inRangeFeatures': featuresPresent});
     } else {
         output.noFeatures();
     };
-
-    console.log("got into presentFeatures");
 }
 
 presentFeatures.outputs = ['foundFeatures', 'noFeatures'];

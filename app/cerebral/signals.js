@@ -192,7 +192,7 @@ export default function(options) {
             a.checkLayerIsSelected, {
                 selected: [a.checkSafeEdit, {
                     safeEditOn: [a.presentFeatures, {
-                        foundFeatures: [],
+                        foundFeatures: [a.displayError],
                         noFeatures: [a.deleteSequence]
                     }],
                     safeEditOff: [a.deleteSequence]
