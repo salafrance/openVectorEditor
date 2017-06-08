@@ -10,10 +10,10 @@ export default function presentFeatures({input, state, output}) {
         // feature and range are tuples of (start, end)
         // return Boolean
         var inRange = false;
-        // case: start and end are outside spanning range = T
+        // case: start and end are outside spanning range => T
         if(feature[0] < range[0] && range[1] < feature[1])
             inRange = true;
-        // case: start or end is in range = T includes case where start & end inside (inclusive)
+        // case: start or end is in range => T includes case where start & end inside (inclusive)
         else if((feature[0] >= range[0] && feature[0] <= range[1]) 
                 || (feature[1] >= range[0] && feature[1] <= range[1]))
             inRange = true;
