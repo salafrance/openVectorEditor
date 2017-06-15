@@ -23,7 +23,7 @@ class Sequence extends React.Component {
         var style = {
             position: 'relative',
             fontFamily: 'monospace',
-            padding: '10px 25px 10px 25px',
+            padding: '5px 25px 0px 25px',
             overflow: 'visible',
             letterSpacing: letterSpacing + 'px',
             fontSize: '12pt',
