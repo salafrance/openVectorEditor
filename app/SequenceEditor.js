@@ -40,6 +40,12 @@ var combokeys;
 
 export default class SequenceEditor extends React.Component {
 
+    warn(e) {
+        var confirmationMessage = "Are you sure you want to leave this page without placing the order ?";
+        (e || window.event).returnValue = confirmationMessage;
+        return confirmationMessage;
+    }
+
     componentWillMount() {
         // trying to fix cross origin problem
         this.props.sequenceData.features.forEach(function(feature) {
@@ -62,6 +68,7 @@ export default class SequenceEditor extends React.Component {
             sequenceDataInserted,
             updateHistory,
         } = this.props.signals;
+
         combokeys = new Combokeys(document.documentElement);
         bindGlobalPlugin(combokeys);
 
@@ -139,6 +146,14 @@ export default class SequenceEditor extends React.Component {
     componentDidUpdate(prevProps, prevState) {
         if (this.props.sequenceData !== prevProps.sequenceData) {
             this.props.signals.updateHistory({ newHistory: this.props.sequenceData });
+        }
+
+        // warns if you try to leave page with unsaved changes
+        // ** doesn't work in firefox
+        if (this.props.savedIdx !== this.props.historyIdx) {
+            window.addEventListener("beforeunload", this.warn);
+        } else {
+            window.removeEventListener("beforeunload", this.warn);
         }
     }
 

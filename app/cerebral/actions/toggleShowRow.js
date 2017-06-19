@@ -1,3 +1,4 @@
-module.exports = function toggleShowRow({input: { showRow }, state, output}) {
-    state.set('showRow', showRow);
+module.exports = function toggleShowRow({input, state, output}) {
+    var currently = state.get('showRow');
+    state.set('showRow', !currently);
 }
