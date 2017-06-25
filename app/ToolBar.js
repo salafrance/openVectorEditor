@@ -6,7 +6,6 @@ import { Decorator as Cerebral } from 'cerebral-view-react';
 import RestrictionEnzymeManager from './RectrictionEnzymeManager/RestrictionEnzymeManager';
 
 // Material UI
-import BothViewsIcon from 'material-ui/lib/svg-icons/av/art-track';
 import CircularIcon from 'material-ui/lib/svg-icons/device/data-usage';
 import Dialog from 'material-ui/lib/dialog';
 import DownloadIcon from 'material-ui/lib/svg-icons/file/file-download';
@@ -86,18 +85,6 @@ export default class ToolBar extends React.Component {
         // show/hide views buttons that only appear in embedded mode
         var embeddedControls = (
             <div style={{display: 'inline-block', margin:'0 5px', verticalAlign:'top'}}>
-                <IconButton tooltip="Toggle Sequence View"
-                    style={ showRow ? pressedButtonStyle : unpressedButtonStyle }
-                    onTouchTap={function() {
-                        if ((embedded || showSidebar) && showCircular && !showRow) {
-                            signals.toggleShowCircular(); // only allow one view
-                        }
-                        signals.toggleShowRow();
-                        signals.adjustWidth();
-                    }}
-                    >
-                    <RowIcon />
-                </IconButton>
                 <IconButton tooltip="Toggle Circular View"
                     style={showCircular ? pressedButtonStyle : unpressedButtonStyle }
                     onTouchTap={function() {
@@ -109,6 +96,19 @@ export default class ToolBar extends React.Component {
                     }}
                     >
                     <CircularIcon />
+                </IconButton>
+
+                <IconButton tooltip="Toggle Sequence View"
+                    style={ showRow ? pressedButtonStyle : unpressedButtonStyle }
+                    onTouchTap={function() {
+                        if ((embedded || showSidebar) && showCircular && !showRow) {
+                            signals.toggleShowCircular(); // only allow one view
+                        }
+                        signals.toggleShowRow();
+                        signals.adjustWidth();
+                    }}
+                    >
+                    <RowIcon />
                 </IconButton>
             </div>
         )
