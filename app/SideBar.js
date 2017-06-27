@@ -599,7 +599,7 @@ export default class SideBar extends React.Component {
 
                         // if it's name or number of cuts it'll stay blank
                         if (column === 'position') {
-                            cellEntry = cut['start'] + " - " + cut['end'];
+                            cellEntry = (parseInt(cut['start'])+1) + " - " + (parseInt(cut['end'])+1);
 
                         }
                         if (column === 'strand') {
@@ -634,7 +634,7 @@ export default class SideBar extends React.Component {
                             cellEntry = cut['numberOfCuts'];
                         }
                         if (column === 'position') {
-                            cellEntry = cut['start'] + " - " + cut['end'];
+                            cellEntry = (parseInt(cut['start'])+1) + " - " + (parseInt(cut['end'])+1);
 
                         }
                         if (column === 'strand') {
@@ -688,7 +688,15 @@ export default class SideBar extends React.Component {
                     </IconButton>
                 </th>);
             tableHeaderCells.push(
-                <th key='orfhead2' style={{textAlign:'center', color:'black'}}>strand
+                <th key='orfhead2' style={{textAlign:'center', color:'black', width:'20%'}}># codons
+                    <IconButton onClick={this.onOrfSort.bind(this, 'numberOfInternalCodons')}
+                    id='Orfs_numberOfInternalCodons'
+                    style={{verticalAlign:'middle', marginLeft:'-10px'}}>
+                    <ArrowDropDown/>
+                    </IconButton>
+                </th>);
+            tableHeaderCells.push(
+                <th key='orfhead3' style={{textAlign:'center', color:'black', width:'15%'}}>strand
                     <IconButton onClick={this.onOrfSort.bind(this, 'forward')}
                     id='Orfs_forward'
                     style={{verticalAlign:'middle', marginLeft:'-10px'}}>
@@ -696,7 +704,7 @@ export default class SideBar extends React.Component {
                     </IconButton>
                 </th>);
             tableHeaderCells.push(
-                <th key='orfhead3' style={{textAlign:'center', color:'black'}}>frame
+                <th key='orfhead4' style={{textAlign:'center', color:'black', width:'15%'}}>frame
                     <IconButton onClick={this.onOrfSort.bind(this, 'frame')}
                     id='Orfs_frame'
                     style={{verticalAlign:'middle', marginLeft:'-10px'}}>
@@ -718,8 +726,12 @@ export default class SideBar extends React.Component {
                     let cellStyle = {};
                     if (column === 'position') {
                         cellStyle = {};
-                        cellEntry = annotation['start'] + " - " + annotation['end'];
+                        cellEntry = (parseInt(annotation['start'])+1) + " - " + (parseInt(annotation['end'])+2);
                     }  else
+                    if (column === '# codons') {
+                        cellStyle = {textAlign: 'center'};
+                        cellEntry = parseInt(annotation['numberOfInternalCodons']) ? parseInt(annotation['numberOfInternalCodons']) : null;
+                    } else
                     if (column === 'strand') {
                         cellStyle = {textAlign: 'center'};
                         if (annotation['forward']) {
@@ -730,27 +742,45 @@ export default class SideBar extends React.Component {
                     } else
                     if (column === 'frame') {
                         cellStyle = {textAlign: 'center'};
-                        cellEntry = annotation[column].toString();
+                        cellEntry = parseInt(annotation['frame'])+1;
                     } else
                     if (annotation[column] !== null && annotation[column] !== undefined) {
                         cellStyle = {};
                         cellEntry = annotation[column].toString();
                     }
-                    if (cellEntry.length > 20) {
+                    if (cellEntry && cellEntry.length > 20) {
                         cellEntry = cellEntry.slice(0, 17) + "...";
                     }
                     annotationTableCells.push(
                         <td style={cellStyle} key={j}>{ cellEntry }</td>);
                 }
                 var rowStyle = { backgroundColor: 'white' };
+                // var expandedRowStyle = {display:'none'}
                 if (this.state.selectedOrfs.indexOf(sorted[i].id) !== -1) {
                     rowStyle = { backgroundColor: 'lightblue' };
+                    // expandedRowStyle = {display: 'table-row', height: '30px', backgroundColor: '#c7e3ed'};
                 }
                 annotationTableRows.push(
                     <tr style={rowStyle} key={i}
                         onClick={this.onOrfSelection.bind(this, sorted[i].id)}>
                         {annotationTableCells}
                     </tr>);
+
+                // expands to show internal codons
+                // for (var k=0; k<annotation.internalStartCodonIndices.length; k++) {
+                //     var firstRowText = "";
+                //     if (k === 0) {
+                //         firstRowText = "Int. Codons: ";
+                //     }
+                //     annotationTableRows.push(
+                //         <tr style={expandedRowStyle} key={annotation.id+'internalCodon'+k}>
+                //             <td></td>
+                //             <td style={{textAlign:'right', fontSize:'12px'}}>{ firstRowText }</td>
+                //             <td style={{textAlign:'center', fontSize:'12px'}} key={annotation.id+'internalCodonValue'+k}>{ annotation.internalStartCodonIndices[k] }</td>
+                //             <td></td>
+                //             <td></td>
+                //         </tr>);
+                // }
             }
 
             // orf controls
@@ -849,13 +879,19 @@ export default class SideBar extends React.Component {
                 {this.state.featureError}
             </Dialog>
         );
-
+        var tableBottomStyle = {bottom: '0px'}; // there are no cutsite controls
+        if (this.props.annotationType === "Features") {
+            tableBottomStyle = {bottom: '49px'}; // height of feature controls
+        }
+        if (this.props.annotationType === "Orfs") {
+            tableBottomStyle = {bottom: '27px'}; // height of orf controls
+        }
         return (
             <div>
 
                 { topTabs }
 
-                <div className={styles.tableContainer} id="tableContainer">
+                <div className={styles.tableContainer} id="tableContainer" style={tableBottomStyle}>
                     <table ref="sideBar">
                         <thead><tr>{ tableHeaderCells }</tr></thead>
                         <tbody>{ annotationTableRows }</tbody>

@@ -23,7 +23,7 @@ var combokeys;
     history: ['history'],
     historyIdx: ['historyIdx'],
     newRandomRowToJumpTo: ['newRandomRowToJumpTo'],
-    orfData: ['orfData'],
+    orfs: ['orfs'],
     savedIdx: ['savedIdx'],
     selectedSequenceString: ['selectedSequenceString'],
     searchLayers: ['searchLayers'],
@@ -147,7 +147,7 @@ export default class SequenceEditor extends React.Component {
             clipboardData,
             cutsites,
             embedded,
-            orfData,
+            orfs,
             selectedSequenceString,
             sequenceData,
             showCircular,
@@ -193,7 +193,7 @@ export default class SequenceEditor extends React.Component {
         } else if (sidebarType === 'Orfs') {
             table = (
                 <SideBar
-                   annotations={orfData}
+                   annotations={orfs}
                    annotationType={sidebarType}
                    />
             );

@@ -37,7 +37,7 @@ module.exports = {
     history: [],
     historyIdx: -1,
     mapViewTickSpacing: 40,
-    minimumOrfSize: 300,
+    minimumOrfSize: 15,
     MITBBEnzymes: MIT_BB,
     originalUserEnzymesList: COMMON_ENZYMES, //state of user enzymes list at the moment opened
     readOnly: true,
@@ -50,12 +50,12 @@ module.exports = {
     showAddFeatureModal: false,
     showAminoAcids: false,
     showAxis: true,
-    showCircular: true,
+    showCircular: false,
     showCutsites: false,
-    showFeatures: true,
+    showFeatures: false,
     showLinear: true,
     showOrfModal: false,
-    showOrfs: false,
+    showOrfs: true,
     showParts: true,
     showRestrictionEnzymeManager: false,
     showReverseSequence: true,
@@ -128,7 +128,7 @@ module.exports = {
 
             var cutsitesArray = [];
             for (let i = 0; i < cutsites.length; i++) {
-                var cutsite = Object.assign({}, cutsites[i])
+                var cutsite = Object.assign({}, cutsites[i]);
                 cutsite.id = i + 1;
                 cutsite.name = cutsite.restrictionEnzyme.name;
                 cutsite.numberOfCuts = cutsitesByName[cutsite.restrictionEnzyme.name].length;
@@ -184,14 +184,33 @@ module.exports = {
         ['minimumOrfSize'],
         findOrfsInPlasmid
     ]),
+    orfs: deriveData([
+        ['orfData'],
+        function (orfData) {
+            var orfs = [];
+            Object.keys(orfData).forEach(function (key) {
+                orfs = orfs.concat(orfData[key]);
+            });
+
+            var orfsArray = [];
+            for (let i = 0; i < orfs.length; i++) {
+                var orf = Object.assign({}, orfs[i]);
+                orf.start += 0.5;
+                orf.end -= 0.5;
+                orf.numberOfInternalCodons = orfs[i].internalStartCodonIndices.length;
+                orfsArray.push(orf);
+            }
+            return orfsArray;
+        }
+    ]),
     combinedSequenceData: deriveData([ //holds usual sequence data, plus orfs, plus parts..
         ['sequenceData'],
-        ['orfData'],
+        ['orfs'],
         ['translationsWithAminoAcids'],
         ['cutsites'],
-        function(sequenceData, orfData, translations, cutsites) {
+        function(sequenceData, orfs, translations, cutsites) {
             return assign({}, sequenceData, {
-                orfs: orfData,
+                orfs: orfs,
                 translations: translations,
                 cutsites: cutsites
             });

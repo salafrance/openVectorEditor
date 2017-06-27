@@ -61,38 +61,28 @@ export default class Orf extends React.Component {
         var halfwayPoint = heightWithArrow/2;
         var endCircle;
         var arrow = null;
-        var arrowOffset = 0;
-        var circleOffset = 0;
-        var halfBpOffset = 0.5*(width/widthInBps); // centers the codon above a bp instead of in between two bps
+        var arrowOffset = 0.25*(width/widthInBps);
 
         var circle = <circle
                         key='circle'
                         r={height*1.5}
                         cx='0'
                         cy={halfwayPoint}
-                        transform={forward ?
-                            `translate(${halfBpOffset},0)` :
-                            `translate(${width-halfBpOffset},0)`
-                        }
+                        transform={ forward ? null : `translate(${width},0)` }
                         />
 
         if (rangeType === 'end' || rangeType === 'beginningAndEnd') {
-            arrowOffset = 0.25*(width/widthInBps);
-            width -= arrowOffset;
             arrow = (<path
                         transform={forward ?
-                            `translate(${width},0)` :
-                            `translate(${0.5*arrowOffset},0) scale(-1,1)`
+                            `translate(${width+arrowOffset},0)` :
+                            `translate(${-arrowOffset},0) scale(-1,1)`
                         }
                         d= {`M 0 ${halfwayPoint} L -18 ${halfwayPoint+6} L -18 ${halfwayPoint-6} Z`}
                         />
                     )
-            width -= arrowOffset;
         }
 
         if (rangeType === 'start' || rangeType === 'beginningAndEnd') {
-            circleOffset = 0.5*(width/widthInBps);
-            width -= circleOffset;
             endCircle = circle;
         }
 
@@ -103,7 +93,6 @@ export default class Orf extends React.Component {
             L 0,${halfwayPoint-height/2}
             z`
 
-        width = width + 2*arrowOffset + circleOffset;
         var codonIndices = normalizedInternalStartCodonIndices.map(function (internalStartCodon,index) {
             var startBp = 0;
             if (forward && (rangeType === 'start' || rangeType === 'beginningAndEnd')) {
@@ -111,8 +100,9 @@ export default class Orf extends React.Component {
             } else if (!forward && (rangeType === 'end' || rangeType === 'beginningAndEnd')) {
                 var startBp = annotation.start % bpsPerRow;
             }
-            let xShift = (internalStartCodon-startBp) * (width/widthInBps);
-            return React.cloneElement(circle, {key: index, transform: `translate(${xShift+halfBpOffset},0)`});
+            // 0.5 is to center codon above base pair instead of in between two base pairs
+            let xShift = (internalStartCodon + 0.5 - startBp) * (width/widthInBps);
+            return React.cloneElement(circle, {key: index, transform: `translate(${xShift},0)`});
         })
 
         return (
@@ -127,7 +117,7 @@ export default class Orf extends React.Component {
                 >
 
                 <path
-                    transform={forward ? `translate(${circleOffset},0)` : `translate(${width-circleOffset},0) scale(-1,1)`}
+                    transform={forward ? null : `translate(${width},0) scale(-1,1)`}
                     d={ path }
                     >
                 </path>

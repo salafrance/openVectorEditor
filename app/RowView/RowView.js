@@ -18,7 +18,7 @@ import getXStartAndWidthOfRowAnnotation from '../shared-utils/getXStartAndWidthO
     caretPosition: ['caretPosition'],
     cutsiteLabelSelectionLayer: ['cutsiteLabelSelectionLayer'],
     cutsites: ['cutsites'],
-    orfs: ['orfData'],
+    orfs: ['orfs'],
     rowData: ['rowData'],
     rowToJumpTo: ['rowToJumpTo'],
     rowViewDimensions: ['rowViewDimensions'],

@@ -31,7 +31,7 @@ function toDegrees(radians) {
     circularViewDimensions: ['circularViewDimensions'],
     cutsiteLabelSelectionLayer: ['cutsiteLabelSelectionLayer'],
     cutsites: ['cutsites'],
-    orfs: ['orfData'],
+    orfs: ['orfs'],
     selectionLayer: ['selectionLayer'],
     sequenceData: ['sequenceData'],
     sequenceLength: ['sequenceLength'],
@@ -232,7 +232,7 @@ export default class CircularView extends React.Component {
                     />
             );
         }
-        // nothing selected, just put a caret at posirtion 0
+        // nothing selected, just put a caret at position 0
         if (caretPosition !== -1 && !selectionLayer.selected) {
             annotationsSvgs.push(
                 <Caret

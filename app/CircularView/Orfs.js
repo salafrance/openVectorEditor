@@ -119,7 +119,7 @@ export default function Orfs({radius, orfs=[], annotationHeight, spaceBetweenAnn
                         <PlacePointOnCircle
                             radius={ annotationRadius - annotationHeight/2 }
                             key={ "endNode_" + annotation.id }
-                            bpNumber={ annotation.end }
+                            bpNumber={ annotation.end + 1}
                             totalBps = { sequenceLength }
                             >
                             <circle r='1.5' fill={ orfColor } stroke="none"/>
@@ -140,7 +140,7 @@ export default function Orfs({radius, orfs=[], annotationHeight, spaceBetweenAnn
                         <PlacePointOnCircle
                             radius={ annotationRadius - annotationHeight/2 }
                             key={ 'codon' + c + "_" + annotation.id }
-                            bpNumber={ codons[c] }
+                            bpNumber={ codons[c] + 0.5}
                             totalBps = { sequenceLength }
                             >
                             <circle r='1.5' fill={ orfColor } stroke="none"/>

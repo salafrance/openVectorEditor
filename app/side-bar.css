@@ -113,10 +113,9 @@
 
 .tableContainer {
     position: absolute;
-    top: 60px;
+    top: 42px; /*this is the size of the feature-cutsite-orf tabs*/
     left: 20px;
     right: 0;
-    bottom: 50px;
     overflow-y: scroll;
 }
 
