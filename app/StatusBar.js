@@ -12,13 +12,14 @@ import Redo from 'material-ui/lib/svg-icons/content/redo';
 import Undo from 'material-ui/lib/svg-icons/content/undo';
 
 @Cerebral({
-    sequenceLength: ['sequenceLength'],
-    selectedSeqMeltingTemp: ['selectedSeqMeltingTemp'],
     caretPosition: ['caretPosition'],
-    selectionLayer: ['selectionLayer'],
-    readOnly: ['readOnly'],
+    embedded: ['embedded'],
     history: ['history'],
     historyIdx: ['historyIdx'],
+    readOnly: ['readOnly'],
+    selectionLayer: ['selectionLayer'],
+    selectedSeqMeltingTemp: ['selectedSeqMeltingTemp'],
+    sequenceLength: ['sequenceLength']
 })
 
 export default class StatusBar extends React.Component {
@@ -49,17 +50,17 @@ export default class StatusBar extends React.Component {
 
     render() {
         var {
+            embedded,
             sequenceLength,
             selectedSeqMeltingTemp,
-            caretPosition,
             selectionLayer,
             readOnly,
             signals,
             history,
             historyIdx,
         } = this.props;
-
-        var selectionStart = (selectionLayer.start != -1) ? selectionLayer.start : '--';
+        var caretPosition = this.props.caretPosition + 1;
+        var selectionStart = (selectionLayer.start != -1) ? selectionLayer.start + 1 : '--';
         var selectionEnd = (selectionLayer.end != -1) ? selectionLayer.end + 1 : '--';
 
         // {{}} needs styling
@@ -157,7 +158,7 @@ export default class StatusBar extends React.Component {
 
         return (
             <div ref="statusBar">
-                <div className = { styles.bar }>
+                <div className = { embedded ? styles.barEmbed : styles.bar }>
 
                     <IconMenu
                         style={{position:'absolute', left:'0'}}

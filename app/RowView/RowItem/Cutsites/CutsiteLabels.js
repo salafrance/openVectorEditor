@@ -7,6 +7,37 @@ import assign from 'lodash/object/assign'
 
 let CutsiteLabels = React.createClass({
 
+    singleClick: function(annotation) {
+        this.props.signals.cutsiteClicked({ annotation: annotation });
+    },
+
+    doubleClick: function(annotation) {
+        this.props.signals.cutsiteClicked({ annotation: annotation });
+        this.props.signals.sidebarToggle({ sidebar: true, annotation: annotation, view: "row" });
+        this.props.signals.adjustWidth();
+    },
+
+    handleClick: function(annotation) {
+        var clicks = 0;
+        var timeout;
+
+        return function() {
+            clicks += 1;
+
+            if (clicks === 1) {
+                timeout = setTimeout(function() {
+                    this.singleClick(annotation);
+                    clicks = 0;
+                }.bind(this), 250);
+
+            } else {
+                clearTimeout(timeout);
+                this.doubleClick(annotation);
+                clicks = 0;
+            }
+        }.bind(this)
+    },
+
     render: function() {
         var {
             annotationRanges={},
@@ -52,35 +83,31 @@ let CutsiteLabels = React.createClass({
                 <div
                     id={annotation.id}
                     key={'cutsiteLabel' + index}
-                    onClick={ function (e) {
-                        e.stopPropagation();
-                        signals.cutsiteClicked({ annotation: annotation });
-                    }}
-                    // onDoubleClick={ function (e) {
-                    //     e.stopPropagation();
-                    //     signals.sidebarToggle({ sidebar: true, annotation: annotation, view: "row" });
-                    // }}
+                    onClick={this.handleClick(annotation)}
                     >
                     <div
                         left={xStart}
+                        className={"cutsiteLabel"}
                         style={{
                             position: 'absolute',
                             left: xStart,
                             bottom: yOffset * 15,
-                            zIndex: 10
+                            zIndex: 10,
+                            color: annotation.color
                         }}
                         >
                         {annotation.restrictionEnzyme.name}
                     </div>
                 </div>
             );
-        });
+        }.bind(this));
 
         return (
             <div
                 width="100%"
                 style={{
                     position: 'relative',
+                    marginTop: '5px',
                     height: 15*(maxAnnotationYOffset+1),
                     display: 'block'
                 }}

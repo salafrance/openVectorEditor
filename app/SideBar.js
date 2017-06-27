@@ -16,14 +16,15 @@ var assign = require('lodash/object/assign');
 
 @Cerebral({
     bpsPerRow: ['bpsPerRow'],
-    showAddFeatureModal: ['showAddFeatureModal'],
-    showOrfModal: ['showOrfModal'],
     minimumOrfSize: ['minimumOrfSize'],
     readOnly: ['readOnly'],
-    sidebarType: ['sidebarType'],
     selectionLayer: ['selectionLayer'],
-    sequenceLength: ['sequenceLength'],
     sequenceData: ['sequenceData'],
+    sequenceLength: ['sequenceLength'],
+    showAddFeatureModal: ['showAddFeatureModal'],
+    showOrfModal: ['showOrfModal'],
+    showSidebar: ['showSidebar'],
+    sidebarType: ['sidebarType'],
 })
 
 export default class SideBar extends React.Component {
@@ -36,40 +37,49 @@ export default class SideBar extends React.Component {
             featureOrder: 'name',
             cutsiteOrder: 'name',
             orfOrder: 'start',
-            newFeature: {start: '0', end: '0', strand: '-1', name: "", type: ""},
+            newFeature: {},
             selectedCutsites: [],
             selectedFeatures: [],
             selectedOrfs: [],
+            shiftedFeatures: [],
         };
     }
 
     componentWillReceiveProps(newProps) {
         let signals = this.props.signals;
+
+        var shiftedFeatures = [];
+        if (this.props.annotationType === 'Features') {
+            var featureCopy;
+            for (var i=0; i<this.props.annotations.length; i++) {
+                featureCopy = Object.assign({}, this.props.annotations[i]);
+                featureCopy.start += 1;
+                featureCopy.end += 1;
+                shiftedFeatures.push(featureCopy);
+            }
+            this.setState({ shiftedFeatures: shiftedFeatures });
+        }
+
         if (newProps.selectionLayer.selected && newProps.selectionLayer.id) {
+
             for (var key in newProps.annotations) {
                 let annotation = newProps.annotations[key];
 
-                // open sidebar to correct tab
-                var type = 'Features';
-                if (annotation.numberOfCuts) {
-                    type = 'Cutsites';
-                } else if (annotation.internalStartCodonIndices) {
-                    type = 'Orfs';
-                }
-                signals.sidebarDisplay({ type: type });
-
-                // highlighting is stupid if the annotation's type isn't even being shown on the display
-                signals.toggleAnnotationDisplay({ type: type, value: true });
-
                 if (annotation.id === newProps.selectionLayer.id) {
-                    if (type === 'Features') {
-                        this.setState({selectedFeatures: [annotation.id]});
+                    // open sidebar to correct tab
+                    var type;
+                    if (annotation.numberOfCuts) {
+                        type = 'Cutsites';
+                    } else if (annotation.internalStartCodonIndices) {
+                        type = 'Orfs';
+                    } else if (annotation.name) {
+                        type = 'Features';
                     }
-                    if (type === 'Cutsites') {
-                        this.setState({selectedCutsites: [annotation.id]});
-                    }
-                    if (type === 'Orfs') {
-                        this.setState({selectedOrfs: [annotation.id]});
+                    // highlighting is stupid if the annotation's type isn't even being shown on the display
+                    if (type && newProps.showSidebar) {
+                        signals.sidebarDisplay({ type: type });
+                        signals.toggleAnnotationDisplay({ type: type, value: true });
+                        this.state['selected' + type] = [annotation.id];
                     }
                 }
             }
@@ -173,16 +183,16 @@ export default class SideBar extends React.Component {
     }
 
     editFeature(currentFeature) {
-        if (parseInt(currentFeature.start) === parseInt(currentFeature.end)) {
-            this.setState({ featureError: 'Feature length cannot be zero' });
-            return;
-        }
         if (currentFeature.badType) {
             this.setState({ featureError: 'Unrecognized feature type' });
             return;
         }
-        this.props.signals.updateFeature({ feature: currentFeature, reset: false });
-        this.setState({ selectedFeatures: [], editFeature: -1 })
+        var featureCopy = Object.assign({}, currentFeature);
+        featureCopy.start -= 1;
+        featureCopy.end -= 1;
+        this.setState({ editFeature: -1 });
+        this.props.signals.updateFeature({ feature: featureCopy });
+        this.props.signals.featureClicked({ annotation: featureCopy });
     }
 
     closeErrorDialog() {
@@ -199,7 +209,7 @@ export default class SideBar extends React.Component {
 
     openAddFeatureDisplay() {
         this.setState({ editFeature: -1, selectedFeatures: [] });
-        this.annotationHighlight(null);
+        // this.annotationHighlight(null);
         this.props.signals.addFeatureModalDisplay();
     }
 
@@ -208,10 +218,6 @@ export default class SideBar extends React.Component {
     }
 
     addFeature() {
-        if (parseInt(this.state.newFeature.start) === parseInt(this.state.newFeature.end)) {
-            this.setState({featureError: 'Feature length cannot be zero'});
-            return;
-        }
         if (this.state.newFeature.badType) {
             this.setState({ featureError: 'Unrecognized feature type' });
             return;
@@ -219,13 +225,17 @@ export default class SideBar extends React.Component {
         let temporaryId = this.props.annotations.length;
         this.state.newFeature.id = temporaryId;
         this.props.signals.addFeatureModalDisplay();
+        var featureCopy = Object.assign({}, this.state.newFeature);
+        featureCopy.start -= 1;
+        featureCopy.end -= 1;
+
         this.props.signals.addAnnotations({
             sidebarType: 'Features',
-            annotationsToInsert: [this.state.newFeature],
+            annotationsToInsert: [featureCopy],
             thidErrors: true
         });
         this.setState({selectedFeatures: [temporaryId]});
-        this.props.signals.featureClicked({annotation: this.state.newFeature});
+        this.props.signals.featureClicked({annotation: featureCopy});
     }
 
     onFeatureSort(column) {
@@ -341,28 +351,18 @@ export default class SideBar extends React.Component {
 
                 <div style={this.props.annotationType==='Features' ? selectedTabStyle : tabStyle}
                     onClick={function() {
-                        if (this.props.annotationType !== 'Features') {
-                            signals.featureClicked({annotation: {}});
-                            this.setState({selectedFeatures: []});
-                        }
                         signals.sidebarDisplay({ type: 'Features' })}.bind(this)}>
                     Features
                 </div>
 
                 <div style={this.props.annotationType==='Cutsites' ? selectedTabStyle : tabStyle}
                     onClick={function () {
-                        signals.featureClicked({annotation: {}});
-                        this.setState({selectedFeatures: []});
                         signals.sidebarDisplay({ type: 'Cutsites' })}.bind(this)}>
                     Cutsites
                 </div>
 
                 <div style={this.props.annotationType==='Orfs' ? selectedTabStyle : tabStyle}
                     onClick={function () {
-                        if (this.props.annotationType !== 'Orfs') {
-                            signals.featureClicked({annotation: {}});
-                            this.setState({selectedFeatures: []});
-                        }
                         signals.sidebarDisplay({ type: 'Orfs' })}.bind(this)}>
                     ORFs
                 </div>
@@ -391,7 +391,7 @@ export default class SideBar extends React.Component {
 
         // FEATURE DETAIL
         var annotationForm;
-        var sorted = annotations.slice(0);
+        var sorted = this.state.shiftedFeatures.slice(0);
         sorted = sorted.sort(this.dynamicSort(this.state.featureOrder));
 
         if (this.state.editFeature > -1 && this.props.annotationType === "Features") {
@@ -786,10 +786,12 @@ export default class SideBar extends React.Component {
             // {{}} why are the function calls different?
             <div>
                 <FlatButton
+                    key="cancel"
                     label="Cancel"
                     onTouchTap={function() {signals.addFeatureModalDisplay()}}
                     />
                 <FlatButton
+                    key="addFeature"
                     className={styles.saveButton}
                     label="Add Feature"
                     style={{color: "#03A9F4"}}
@@ -798,23 +800,28 @@ export default class SideBar extends React.Component {
                         !this.state.newFeature['start'] || isNaN(this.state.newFeature['start']) ||
                         !this.state.newFeature['end'] || isNaN(this.state.newFeature['end']) ||
                         !this.state.newFeature['strand'] || isNaN(this.state.newFeature['strand']) ||
-                        this.state.newFeature['start'] < 0 || this.state.newFeature['start'] > sequenceLength ||
-                        this.state.newFeature['end'] < 0 || this.state.newFeature['end'] > sequenceLength ||
+                        this.state.newFeature['start'] < 1 || this.state.newFeature['start'] > sequenceLength ||
+                        this.state.newFeature['end'] < 1 || this.state.newFeature['end'] > sequenceLength ||
                         this.state.newFeature['strand']*this.state.newFeature['strand'] !== 1 ||
-                        this.state.newFeature.start === this.state.newFeature.end ||
                         this.state.newFeature.badType
                     }
                     />
             </div>
         );
 
+        var start = 1;
+        var end = 1;
+        if (selectionLayer.start > 0) {
+            start = selectionLayer.start+1;
+            end = selectionLayer.end+1;
+        }
         var sidebarDetail = (
-                <SidebarDetail
-                    createFeature={this.createFeature.bind(this)}
-                    sequenceLength={sequenceLength}
-                    feature = {{start: '0', end: '0', strand: '-1', name: "", type: ""}}
-                    />
-            );
+            <SidebarDetail
+                createFeature={this.createFeature.bind(this)}
+                sequenceLength={sequenceLength}
+                feature = {{start: start, end: end, strand: -1, name: "", type: ""}}
+                />
+        );
 
         if (showAddFeatureModal) {
             var addFeatureDialog = (
@@ -837,7 +844,7 @@ export default class SideBar extends React.Component {
                 open={this.state.featureError.length > 0}
                 onRequestClose={this.closeErrorDialog.bind(this)}
                 style={{height: '500px', position: 'absolute', maxWidth: '500px'}}
-                actions={[<FlatButton onClick={this.closeErrorDialog.bind(this)}>ok</FlatButton>]}
+                actions={[<FlatButton key="cancel" onClick={this.closeErrorDialog.bind(this)}>ok</FlatButton>]}
                 >
                 {this.state.featureError}
             </Dialog>

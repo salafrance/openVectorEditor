@@ -89,8 +89,17 @@ export default class RowView extends React.Component {
                 rowStart = rowStart < 0 ? 0 : rowStart;
                 var rowEnd = Math.floor((result.end)/(bpsPerRow));
 
-                if (rowEnd === rowStart) {
+                if (rowEnd === rowStart && result.start <= result.end) {
                     searchRows = this.putIntoSearchHash(searchRows, rowStart, result);
+                } else if (result.start > result.end) {
+                    searchRows = this.putIntoSearchHash(searchRows, rowStart, { start: result.start, end: bpsPerRow*(rowStart+1), selected: false });
+                    searchRows = this.putIntoSearchHash(searchRows, rowEnd, { start: rowEnd*bpsPerRow, end: result.end, selected: false });
+                    for (let i=rowStart+1; i<this.props.rowData.length; i++) {
+                        searchRows = this.putIntoSearchHash(searchRows, i, {start:i*bpsPerRow, end:bpsPerRow*(i+1), selected:false});
+                    }
+                    for (let i=0; i<rowEnd; i++) {
+                        searchRows = this.putIntoSearchHash(searchRows, i, {start:i*bpsPerRow, end:bpsPerRow*(i+1), selected:false});
+                    }
                 } else {
                     searchRows = this.putIntoSearchHash(searchRows, rowStart, { start: result.start, end: bpsPerRow*(rowStart+1), selected: false });
                     searchRows = this.putIntoSearchHash(searchRows, rowEnd, { start: rowEnd*bpsPerRow, end: result.end, selected: false });
@@ -113,6 +122,11 @@ export default class RowView extends React.Component {
     }
 
     getNearestCursorPositionToMouseEvent(event, callback) {
+        if (event.target.nodeName.toLowerCase() === "path" ||
+            event.target.nodeName.toLowerCase() === "circle" ||
+            event.target.className === "cutsiteLabel") {
+            return;
+        }
         var bpsPerRow = this.props.bpsPerRow;
         var charWidth = this.props.charWidth;
         var nearestBP = 0;
@@ -264,7 +278,7 @@ export default class RowView extends React.Component {
                 selectionEnd = selectionEndRow === index ? selectionRightEdge : <div></div>
                 return (
                     <div key={key}>
-                        <div className={'veRowItemSpacer'} 
+                        <div className={'veRowItemSpacer'}
                             />
                         <RowItem
                             selectionStart={selectionStart}

@@ -51,6 +51,7 @@ module.exports = {
     searchString: "",
     sequenceHeight: 20,
     showAddFeatureModal: false,
+    showAminoAcids: false,
     showAxis: true,
     showCircular: true,
     showCutsites: false,
@@ -132,9 +133,14 @@ module.exports = {
             var cutsitesArray = [];
             for (let i = 0; i < cutsites.length; i++) {
                 var cutsite = Object.assign({}, cutsites[i])
-                cutsite.id = i;
+                cutsite.id = i + 1;
                 cutsite.name = cutsite.restrictionEnzyme.name;
                 cutsite.numberOfCuts = cutsitesByName[cutsite.restrictionEnzyme.name].length;
+                var color = 'black';
+                if (cutsite.numberOfCuts === 1) {
+                    color = 'red';
+                }
+                cutsite.color = color;
                 cutsitesArray.push(cutsite);
             }
             return cutsitesArray;

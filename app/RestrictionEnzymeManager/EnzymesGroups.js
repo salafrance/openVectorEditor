@@ -2,8 +2,6 @@ import React, {PropTypes} from 'react';
 import {Decorator as Cerebral} from 'cerebral-view-react';
 import ReactList from 'react-list';
 import List from 'material-ui/lib/lists/list';
-// import ListItem from 'material-ui/lib/lists/list-item';
-// import Checkbox from 'material-ui/lib/checkbox';
 import RaisedButton from 'material-ui/lib/raised-button';
 import styles from './manager-list.scss';
 
@@ -149,7 +147,7 @@ export default class EnzymesGroups extends React.Component {
                     ref="enzymeField"
                     type="text"
                     placeholder="search"
-                    style={{paddingLeft:'5px', marginBottom:'4px', width:'100%'}}
+                    style={{paddingLeft:'5px', marginBottom:'3px', width:'100%'}}
                     value={this.state.input.toString()}
                     onChange={this.filterList.bind(this)}
                     />
