@@ -19,8 +19,8 @@ var assign = require('lodash/object/assign');
     minimumOrfSize: ['minimumOrfSize'],
     readOnly: ['readOnly'],
     selectionLayer: ['selectionLayer'],
-    sequenceLength: ['sequenceLength'],
     sequenceData: ['sequenceData'],
+    sequenceLength: ['sequenceLength'],
     showAddFeatureModal: ['showAddFeatureModal'],
     showOrfModal: ['showOrfModal'],
     showSidebar: ['showSidebar'],
@@ -61,30 +61,25 @@ export default class SideBar extends React.Component {
         }
 
         if (newProps.selectionLayer.selected && newProps.selectionLayer.id) {
+
             for (var key in newProps.annotations) {
                 let annotation = newProps.annotations[key];
 
-                // open sidebar to correct tab
-                var type = 'Features';
-                if (annotation.numberOfCuts) {
-                    type = 'Cutsites';
-                } else if (annotation.internalStartCodonIndices) {
-                    type = 'Orfs';
-                }
-                signals.sidebarDisplay({ type: type });
-
-                // highlighting is stupid if the annotation's type isn't even being shown on the display
-                signals.toggleAnnotationDisplay({ type: type, value: true });
-
                 if (annotation.id === newProps.selectionLayer.id) {
-                    if (type === 'Features') {
-                        this.setState({selectedFeatures: [annotation.id]});
+                    // open sidebar to correct tab
+                    var type;
+                    if (annotation.numberOfCuts) {
+                        type = 'Cutsites';
+                    } else if (annotation.internalStartCodonIndices) {
+                        type = 'Orfs';
+                    } else if (annotation.name) {
+                        type = 'Features';
                     }
-                    if (type === 'Cutsites') {
-                        this.setState({selectedCutsites: [annotation.id]});
-                    }
-                    if (type === 'Orfs') {
-                        this.setState({selectedOrfs: [annotation.id]});
+                    // highlighting is stupid if the annotation's type isn't even being shown on the display
+                    if (type && newProps.showSidebar) {
+                        signals.sidebarDisplay({ type: type });
+                        signals.toggleAnnotationDisplay({ type: type, value: true });
+                        this.state['selected' + type] = [annotation.id];
                     }
                 }
             }
@@ -351,28 +346,18 @@ export default class SideBar extends React.Component {
 
                 <div style={this.props.annotationType==='Features' ? selectedTabStyle : tabStyle}
                     onClick={function() {
-                        if (this.props.annotationType !== 'Features') {
-                            signals.featureClicked({annotation: {}});
-                            this.setState({selectedFeatures: []});
-                        }
                         signals.sidebarDisplay({ type: 'Features' })}.bind(this)}>
                     Features
                 </div>
 
                 <div style={this.props.annotationType==='Cutsites' ? selectedTabStyle : tabStyle}
                     onClick={function () {
-                        signals.featureClicked({annotation: {}});
-                        this.setState({selectedFeatures: []});
                         signals.sidebarDisplay({ type: 'Cutsites' })}.bind(this)}>
                     Cutsites
                 </div>
 
                 <div style={this.props.annotationType==='Orfs' ? selectedTabStyle : tabStyle}
                     onClick={function () {
-                        if (this.props.annotationType !== 'Orfs') {
-                            signals.featureClicked({annotation: {}});
-                            this.setState({selectedFeatures: []});
-                        }
                         signals.sidebarDisplay({ type: 'Orfs' })}.bind(this)}>
                     ORFs
                 </div>
@@ -796,10 +781,12 @@ export default class SideBar extends React.Component {
             // {{}} why are the function calls different?
             <div>
                 <FlatButton
+                    key="cancel"
                     label="Cancel"
                     onTouchTap={function() {signals.addFeatureModalDisplay()}}
                     />
                 <FlatButton
+                    key="addFeature"
                     className={styles.saveButton}
                     label="Add Feature"
                     style={{color: "#03A9F4"}}
@@ -852,7 +839,7 @@ export default class SideBar extends React.Component {
                 open={this.state.featureError.length > 0}
                 onRequestClose={this.closeErrorDialog.bind(this)}
                 style={{height: '500px', position: 'absolute', maxWidth: '500px'}}
-                actions={[<FlatButton onClick={this.closeErrorDialog.bind(this)}>ok</FlatButton>]}
+                actions={[<FlatButton key="cancel" onClick={this.closeErrorDialog.bind(this)}>ok</FlatButton>]}
                 >
                 {this.state.featureError}
             </Dialog>

@@ -3,7 +3,8 @@ import React, { PropTypes } from 'react';
 
 // Cerebral
 import { Decorator as Cerebral } from 'cerebral-view-react';
-import RestrictionEnzymeManager from './RectrictionEnzymeManager/RestrictionEnzymeManager';
+import RestrictionEnzymeManager from './RestrictionEnzymeManager/RestrictionEnzymeManager';
+import DigestionSimulation from './GelDigest/DigestionSimulation';
 
 // Material UI
 import BothViewsIcon from 'material-ui/lib/svg-icons/av/art-track';
@@ -25,6 +26,7 @@ import SearchIcon from 'material-ui/lib/svg-icons/action/search';
 import Toolbar from 'material-ui/lib/toolbar/toolbar';
 import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
 import UploadIcon from 'material-ui/lib/svg-icons/file/file-upload';
+import DigestionIcon from 'material-ui/lib/svg-icons/maps/local-dining';
 import VisibleIcon from 'material-ui/lib/svg-icons/action/visibility';
 
 import Search from './Search.js'
@@ -68,8 +70,12 @@ export default class ToolBar extends React.Component {
             savedIdx
         } = this.props;
 
-        var dialog = (
+        var restrictionDialog = (
             <RestrictionEnzymeManager />
+        );
+
+        var gelDialog = (
+            <DigestionSimulation />
         );
 
         // show/hide views buttons that only appear in embedded mode
@@ -114,25 +120,25 @@ export default class ToolBar extends React.Component {
                     style={{padding:'0 20px'}}
                     onClick={function () {
                         signals.clickSaveFile({fileExt: 'sbol1'});
-                    }} 
+                    }}
                     />
                 <MenuItem key={2} primaryText="Download SBOL 2.0" insetChildren={false}
                     style={{padding:'0 20px'}}
                     onClick={function () {
                         signals.clickSaveFile({fileExt: 'sbol2'});
-                    }} 
+                    }}
                     />
                 <MenuItem key={3} primaryText="Download GenBank" insetChildren={false}
                     style={{padding:'0 20px'}}
                     onClick={function () {
                         signals.clickSaveFile({fileExt: 'genbank'});
-                    }} 
+                    }}
                     />
                 <MenuItem key={4} primaryText="Download Fasta" insetChildren={false}
                     style={{padding:'0 20px'}}
                     onClick={function () {
                         signals.clickSaveFile({fileExt: 'fasta'});
-                    }} 
+                    }}
                     />
                 { embedded ? null :
                     <MenuItem key={5} primaryText="Upload from file ..." insetChildren={false}
@@ -145,7 +151,7 @@ export default class ToolBar extends React.Component {
                                 let file = this.files[0];
                                  signals.clickLoadFile({inputFile: file});
                             }
-                        }} 
+                        }}
                         />
                 }
                 <input type="file" id="uploadFileInput" style={{display:'none'}} onChange={function() {
@@ -166,26 +172,26 @@ export default class ToolBar extends React.Component {
                     style={{padding:'0 20px'}}
                     onClick={function () {
                         signals.toggleAnnotationDisplay({type: 'Cutsites'});
-                    }} 
+                    }}
                     />
                 <MenuItem key={3} primaryText="ORFs" insetChildren={false}
                     style={{padding:'0 20px'}}
                     onClick={function () {
                         signals.toggleAnnotationDisplay({type: 'Orfs'});
-                    }} 
+                    }}
                     />
                 <MenuItem key={4} primaryText="Complementary Seq" insetChildren={false}
                     style={{padding:'0 20px'}}
                     onClick={function () {
                         signals.toggleAnnotationDisplay({type: 'ReverseSequence'});
-                    }} 
+                    }}
                     />
                 <MenuItem key={5} primaryText="Amino Acids" insetChildren={false}
                     style={{padding:'0 20px'}}
                     onClick={function () {
                         signals.toggleAnnotationDisplay({type: 'AminoAcids'});
-                    }} 
-                    />                                        
+                    }}
+                    />
             </div>
         );
 
@@ -283,7 +289,7 @@ export default class ToolBar extends React.Component {
 
                     <IconMenu
                         className = {styles.openableIcon}
-                        iconButtonElement = {visibleButtonElement} 
+                        iconButtonElement = {visibleButtonElement}
                         open-direction = "bottom-right"
                         >
                         { visibilityMenuItems }
@@ -300,9 +306,9 @@ export default class ToolBar extends React.Component {
                         <SaveIcon />
                     </IconButton>
 
-                    <IconMenu 
+                    <IconMenu
                         className={styles.openableIcon}
-                        iconButtonElement={fileButtonElement} 
+                        iconButtonElement={fileButtonElement}
                         openDirection="bottom-right"
                         >
                         { fileMenuItems }
@@ -317,7 +323,20 @@ export default class ToolBar extends React.Component {
                         >
                         <EnzymesIcon />
                     </IconButton>
-                    { dialog }
+
+                    <IconButton
+                        label="Dialog"
+                        tooltip="Simulate Digestion"
+                        onTouchTap={function() {
+                            signals.gelDigestDisplay();
+                        }}
+                        >
+                        <DigestionIcon />
+                    </IconButton>
+
+                    { restrictionDialog }
+                    { gelDialog }
+
                 </ToolbarGroup>
             </Toolbar>
         );

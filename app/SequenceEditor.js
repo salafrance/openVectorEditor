@@ -54,16 +54,16 @@ export default class SequenceEditor extends React.Component {
 
     componentDidMount() {
         var {
-            sequenceDataInserted,
             backspacePressed,
+            caretMoved,
+            copySelection,
+            cutSelection,
+            pasteSequenceString,
             selectAll,
             selectInverse,
+            sequenceDataInserted,
             updateHistory,
-            copySelection,
-            pasteSequenceString,
-            cutSelection,
         } = this.props.signals;
-        var self = this;
         combokeys = new Combokeys(document.documentElement);
         bindGlobalPlugin(combokeys);
 
@@ -72,34 +72,34 @@ export default class SequenceEditor extends React.Component {
             sequenceDataInserted({newSequenceData: {sequence: String.fromCharCode(event.charCode)}});
         });
         combokeys.bind(['left','shift+left'] , function(event) { // Handle shortcut
-            self.props.signals.caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretLeftOne'});
+            caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretLeftOne'});
         });
         combokeys.bind(['right','shift+right'] , function(event) { // Handle shortcut
-            self.props.signals.caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretRightOne'});
+            caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretRightOne'});
         });
         combokeys.bind(['up','shift+up'] , function(event) { // Handle shortcut
-            self.props.signals.caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretUpARow'});
+            caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretUpARow'});
         });
         combokeys.bindGlobal(['down','shift+down'] , function(event) { // Handle shortcut
-            self.props.signals.caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretDownARow'});
+            caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretDownARow'});
         });
         combokeys.bindGlobal(['mod+right','mod+shift+right'], function(event) { // Handle shortcut
-            self.props.signals.caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretToEndOfRow'});
+            caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretToEndOfRow'});
             event.stopPropagation();
             event.preventDefault();
         });
         combokeys.bindGlobal(['mod+left','mod+shift+left'], function(event) { // Handle shortcut
-            self.props.signals.caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretToStartOfRow'});
+            caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretToStartOfRow'});
             event.stopPropagation();
             event.preventDefault();
         });
         combokeys.bindGlobal(['mod+up','mod+shift+up'], function(event) { // Handle shortcut
-            self.props.signals.caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretToStartOfSequence'});
+            caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretToStartOfSequence'});
             event.stopPropagation();
             event.preventDefault();
         });
         combokeys.bindGlobal(['mod+down','mod+shift+down'], function(event) { // Handle shortcut
-            self.props.signals.caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretToEndOfSequence'});
+            caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretToEndOfSequence'});
             event.stopPropagation();
             event.preventDefault();
         });
@@ -110,6 +110,7 @@ export default class SequenceEditor extends React.Component {
         });
         combokeys.bindGlobal('command+a', function(event) { // Handle shortcut
             selectAll();
+            event.preventDefault();
             event.stopPropagation();
         });
         combokeys.bindGlobal('command+ctrl+i', function(event) { // Handle shortcut
@@ -136,7 +137,6 @@ export default class SequenceEditor extends React.Component {
         });
         // no paste, that's handled by the clipboard component only
     }
-
 
     componentDidUpdate(prevProps, prevState) {
         if (this.props.sequenceData !== prevProps.sequenceData) {

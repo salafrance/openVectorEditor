@@ -6,6 +6,7 @@ import GridList from 'material-ui/lib/grid-list/grid-list';
 import GridTile from 'material-ui/lib/grid-list/grid-tile';
 import LeftTile from './EnzymesGroups';
 import RightTile from './ActiveEnzymes';
+var assign = require('lodash/object/assign');
 
 const Dialog = require('material-ui/lib/dialog');
 
@@ -35,6 +36,7 @@ export default class RestrictionEnzymeManager extends  React.Component {
         var tileTitleStyle = {
             textAlign: "center",
             color: "black",
+            fontSize: '15px'
         };
 
         var tileLeft = (
@@ -83,6 +85,7 @@ export default class RestrictionEnzymeManager extends  React.Component {
 
         var actionButtons = [
             <FlatButton
+                key="cancel"
                 label={"Cancel"}
                 onTouchTap={function() {
                         signals.updateUserEnzymes({
@@ -94,8 +97,9 @@ export default class RestrictionEnzymeManager extends  React.Component {
                     }}
                 />,
             <FlatButton
+                key="apply"
                 label={"Apply"}
-                style={{color: "#03A9F4"}}
+                style={{color: "#00bcd4"}}
                 onTouchTap={function() {
                         signals.updateUserEnzymes({
                             selectedButton: "Apply",
@@ -110,12 +114,13 @@ export default class RestrictionEnzymeManager extends  React.Component {
         return (
             <div align="center">
                 <Dialog
+                    bodyStyle={{padding:'25px 25px 0 25px'}}
                     ref="enzymeManager"
                     title="Restriction Enzyme Manager"
                     autoDetectWindowHeight={true}
                     actions={actionButtons}
                     open={toOpen}
-                    titleStyle={{padding:'50px 0 0 50px', color:"black", background:"white"}}
+                    titleStyle={{padding:'25px 0 0 50px', color:"black", background:"white"}}
                     >
                     {grid}
                 </Dialog>
