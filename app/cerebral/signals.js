@@ -58,6 +58,10 @@ export default function(options) {
             }]
         ],
 
+        createFragmentsLines: [
+            a.createFragmentsLines
+        ],
+
         cutsiteClicked: c.selectAnnotation(a),
 
         editorClicked: [
@@ -103,7 +107,15 @@ export default function(options) {
             a.editUserEnzymes
         ],
 
+        editDigestEnzymes: [
+            a.editDigestEnzymes
+        ],
+
         featureClicked: c.selectAnnotation(a),
+
+        gelDigestDisplay: [
+            a.gelDigestDisplay
+        ],
 
         jumpToRow: [
             a.jumpToRow

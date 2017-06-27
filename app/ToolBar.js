@@ -3,7 +3,8 @@ import React, { PropTypes } from 'react';
 
 // Cerebral
 import { Decorator as Cerebral } from 'cerebral-view-react';
-import RestrictionEnzymeManager from './RectrictionEnzymeManager/RestrictionEnzymeManager';
+import RestrictionEnzymeManager from './RestrictionEnzymeManager/RestrictionEnzymeManager';
+import DigestionSimulation from './GelDigest/DigestionSimulation';
 
 // Material UI
 import BothViewsIcon from 'material-ui/lib/svg-icons/av/art-track';
@@ -25,6 +26,7 @@ import SearchIcon from 'material-ui/lib/svg-icons/action/search';
 import Toolbar from 'material-ui/lib/toolbar/toolbar';
 import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
 import UploadIcon from 'material-ui/lib/svg-icons/file/file-upload';
+import DigestionIcon from 'material-ui/lib/svg-icons/maps/local-dining';
 import VisibleIcon from 'material-ui/lib/svg-icons/action/visibility';
 
 import Search from './Search.js'
@@ -68,8 +70,12 @@ export default class ToolBar extends React.Component {
             savedIdx
         } = this.props;
 
-        var dialog = (
+        var restrictionDialog = (
             <RestrictionEnzymeManager />
+        );
+
+        var gelDialog = (
+            <DigestionSimulation />
         );
 
         // show/hide views buttons that only appear in embedded mode
@@ -317,7 +323,20 @@ export default class ToolBar extends React.Component {
                         >
                         <EnzymesIcon />
                     </IconButton>
-                    { dialog }
+
+                    <IconButton
+                        label="Dialog"
+                        tooltip="Simulate Digestion"
+                        onTouchTap={function() {
+                            signals.gelDigestDisplay();
+                        }}
+                        >
+                        <DigestionIcon />
+                    </IconButton>
+
+                    { restrictionDialog }
+                    { gelDialog }
+
                 </ToolbarGroup>
             </Toolbar>
         );
