@@ -3,7 +3,8 @@ import React, { PropTypes } from 'react';
 
 // Cerebral
 import { Decorator as Cerebral } from 'cerebral-view-react';
-import RestrictionEnzymeManager from './RectrictionEnzymeManager/RestrictionEnzymeManager';
+import RestrictionEnzymeManager from './RestrictionEnzymeManager/RestrictionEnzymeManager';
+import DigestionSimulation from './GelDigest/DigestionSimulation';
 
 // Material UI
 import CircularIcon from 'material-ui/lib/svg-icons/device/data-usage';
@@ -24,6 +25,7 @@ import SearchIcon from 'material-ui/lib/svg-icons/action/search';
 import Toolbar from 'material-ui/lib/toolbar/toolbar';
 import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
 import UploadIcon from 'material-ui/lib/svg-icons/file/file-upload';
+import DigestionIcon from 'material-ui/lib/svg-icons/maps/local-dining';
 import VisibleIcon from 'material-ui/lib/svg-icons/action/visibility';
 import Check from 'material-ui/lib/svg-icons/navigation/check';
 import DropDownArrow from 'material-ui/lib/svg-icons/navigation/arrow-drop-down';
@@ -76,12 +78,17 @@ export default class ToolBar extends React.Component {
             savedIdx
         } = this.props;
 
-        var dialog = (
+        var restrictionDialog = (
             <RestrictionEnzymeManager />
         );
 
         var pressedButtonStyle = {boxShadow:'1px 1px 5px #888888 inset', background:'lightgray'};
         var unpressedButtonStyle = {boxShadow:'0px 0px 5px #888888', background:'rgb(232,232,232)'};
+
+        var gelDialog = (
+            <DigestionSimulation />
+        );
+
         // show/hide views buttons that only appear in embedded mode
         var embeddedControls = (
             <div style={{display: 'inline-block', margin:'0 5px', verticalAlign:'top'}}>
@@ -317,7 +324,19 @@ export default class ToolBar extends React.Component {
                         <PrintIcon />
                     </IconButton>
 
-                    { dialog }
+                    <IconButton
+                        label="Dialog"
+                        tooltip="Simulate Digestion"
+                        onTouchTap={function() {
+                            signals.gelDigestDisplay();
+                        }}
+                        >
+                        <DigestionIcon />
+                    </IconButton>
+
+                    { restrictionDialog }
+                    { gelDialog }
+
                 </ToolbarGroup>
             </Toolbar>
         );

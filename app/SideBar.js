@@ -207,12 +207,6 @@ export default class SideBar extends React.Component {
         this.annotationHighlight(null);
     }
 
-    openAddFeatureDisplay() {
-        this.setState({ editFeature: -1, selectedFeatures: [] });
-        // this.annotationHighlight(null);
-        this.props.signals.addFeatureModalDisplay();
-    }
-
     createFeature(newFeature) {
         this.setState({ newFeature: newFeature });
     }
@@ -314,13 +308,14 @@ export default class SideBar extends React.Component {
             annotations,
             minimumOrfSize,
             readOnly,
-            signals,
+            selectionLayer,
+            sequenceData,
+            sequenceLength,
             showAddFeatureModal,
             showOrfModal,
-            selectionLayer,
+            showSidebar,
             sidebarType,
-            sequenceLength,
-            sequenceData
+            signals,
         } = this.props;
 
         var sidebarContent;
@@ -525,8 +520,8 @@ export default class SideBar extends React.Component {
                 var featureControls = (
                     <div className={styles.controls}>
                         <IconButton
-                            onTouchTap={this.openAddFeatureDisplay.bind(this)}
-                            tooltip="add"
+                            onTouchTap={this.props.openAddFeatureDisplay.bind(this)}
+                            tooltip="add feature"
                             tooltipPosition="top-center">
                             <AddBoxIcon />
                         </IconButton>
@@ -534,7 +529,7 @@ export default class SideBar extends React.Component {
                         <IconButton
                             onClick={this.deleteFeatures.bind(this)}
                             disabled={this.state.selectedFeatures.length === 0}
-                            tooltip={"delete"}
+                            tooltip={"delete feature"}
                             tooltipPosition="top-center">
                             <IndeterminateCheckBoxIcon />
                         </IconButton>
