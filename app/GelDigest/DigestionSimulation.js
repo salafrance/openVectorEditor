@@ -106,12 +106,13 @@ export default class DigestionSimulation extends React.Component {
         return (
             <div align="center">
                 <Dialog
+                    bodyStyle={{padding:'25px 25px 0 25px'}}
                     ref="gelDigest"
                     title="Gel Digest"
                     autoDetectWindowHeight={true}
                     actions={actions}
                     open={toOpen}
-                    titleStyle={{padding:'50px 0 0 50px', color:"black", background:"white"}}
+                    titleStyle={{padding:'25px 0 0 50px', color:"black", background:"white"}}
                     >
                     {gelDigestContentGrid}
                 </Dialog>
