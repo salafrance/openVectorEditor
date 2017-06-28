@@ -4,6 +4,8 @@ import ToolBar from './ToolBar';
 import StatusBar from './StatusBar';
 import SideBar from './SideBar';
 import Clipboard from './Clipboard';
+import AddBoxIcon from 'material-ui/lib/svg-icons/content/add-box';
+import IconButton from 'material-ui/lib/icon-button';
 import styles from './sequence-editor.css';
 
 var assign = require('lodash/object/assign');
@@ -40,6 +42,12 @@ var combokeys;
 
 export default class SequenceEditor extends React.Component {
 
+    warn(e) {
+        var confirmationMessage = "Are you sure you want to leave this page without placing the order ?";
+        (e || window.event).returnValue = confirmationMessage;
+        return confirmationMessage;
+    }
+
     componentWillMount() {
         // trying to fix cross origin problem
         this.props.sequenceData.features.forEach(function(feature) {
@@ -62,6 +70,7 @@ export default class SequenceEditor extends React.Component {
             sequenceDataInserted,
             updateHistory,
         } = this.props.signals;
+
         combokeys = new Combokeys(document.documentElement);
         bindGlobalPlugin(combokeys);
 
@@ -140,6 +149,21 @@ export default class SequenceEditor extends React.Component {
         if (this.props.sequenceData !== prevProps.sequenceData) {
             this.props.signals.updateHistory({ newHistory: this.props.sequenceData });
         }
+
+        // warns if you try to leave page with unsaved changes
+        // ** doesn't work in firefox
+        if (this.props.savedIdx !== this.props.historyIdx) {
+            window.addEventListener("beforeunload", this.warn);
+        } else {
+            window.removeEventListener("beforeunload", this.warn);
+        }
+    }
+
+    openAddFeatureDisplay() {
+        this.setState({ editFeature: -1, selectedFeatures: [] });
+        this.props.signals.addFeatureModalDisplay();
+        this.props.signals.sidebarToggle({ sidebar: true });
+        this.props.signals.adjustWidth();
     }
 
     render() {
@@ -149,6 +173,7 @@ export default class SequenceEditor extends React.Component {
             embedded,
             orfs,
             selectedSequenceString,
+            selectionLayer,
             sequenceData,
             showCircular,
             showRow,
@@ -161,6 +186,19 @@ export default class SequenceEditor extends React.Component {
         var sidebarStyle = {};
         // we need this position relative to place the controller bar in the sidebar
         Object.assign(sidebarStyle, {minWidth: '580px', overflow: 'hidden', borderRight: '1px solid #ccc', position: 'relative'}, (showSidebar) ? {} : {display: 'none'})
+
+        // add feature button that appears outside of sidebar when there's a selectionLayer
+        var addFeatureButton = <div></div>;
+        if (!showSidebar && selectionLayer.start > 0) {
+            addFeatureButton =
+                <IconButton
+                    style={{position:'absolute', bottom:'115px', left:'5px', zIndex:'500', backgroundColor:'rgba(255,255,255,0.5)'}}
+                    onTouchTap={this.openAddFeatureDisplay.bind(this)}
+                    tooltip="add feature"
+                    tooltipPosition="top-center">
+                    <AddBoxIcon />
+                </IconButton>
+        }
 
         // check if we have just circ or just row and pad it out a little
         // using the bitwise xor here might be a little sketchy
@@ -179,16 +217,18 @@ export default class SequenceEditor extends React.Component {
         if (sidebarType === 'Features') {
             table = (
                 <SideBar
-                   annotations={sequenceData.features}
-                   annotationType={sidebarType}
-                   />
+                    openAddFeatureDisplay={this.openAddFeatureDisplay}
+                    annotations={sequenceData.features}
+                    annotationType={sidebarType}
+                    />
             );
         } else if (sidebarType === 'Cutsites') {
             table = (
                 <SideBar
-                   annotations={cutsites}
-                   annotationType={sidebarType}
-                   />
+                    openAddFeatureDisplay={this.openAddFeatureDisplay}
+                    annotations={cutsites}
+                    annotationType={sidebarType}
+                    />
             );
         } else if (sidebarType === 'Orfs') {
             table = (
@@ -217,6 +257,8 @@ export default class SequenceEditor extends React.Component {
                     <div className={styles.sideBarSlot} id="sideBar" style={ sidebarStyle }>
                       {table}
                     </div>
+
+                    { addFeatureButton }
 
                     <div className={styles.circularViewSlot} id="circularView" style={ circularStyle }>
                         <CircularView showCircular={showCircular}/>

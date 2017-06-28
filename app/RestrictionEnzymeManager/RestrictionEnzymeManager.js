@@ -6,6 +6,7 @@ import GridList from 'material-ui/lib/grid-list/grid-list';
 import GridTile from 'material-ui/lib/grid-list/grid-tile';
 import LeftTile from './EnzymesGroups';
 import RightTile from './ActiveEnzymes';
+var assign = require('lodash/object/assign');
 
 const Dialog = require('material-ui/lib/dialog');
 
@@ -35,6 +36,7 @@ export default class RestrictionEnzymeManager extends  React.Component {
         var tileTitleStyle = {
             textAlign: "center",
             color: "black",
+            fontSize: '15px'
         };
 
         var tileLeft = (
@@ -97,7 +99,7 @@ export default class RestrictionEnzymeManager extends  React.Component {
             <FlatButton
                 key="apply"
                 label={"Apply"}
-                style={{color: "#03A9F4"}}
+                style={{color: "#00bcd4"}}
                 onTouchTap={function() {
                         signals.updateUserEnzymes({
                             selectedButton: "Apply",

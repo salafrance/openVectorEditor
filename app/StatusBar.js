@@ -91,12 +91,13 @@ export default class StatusBar extends React.Component {
         if (this.state.showShortcuts) {
             var shortcutsDialog = (
                 <Dialog
-                className={styles.shortcutsDialog}
-                title="Keyboard Shortcuts"
-                open={this.state.showShortcuts}
-                onRequestClose={this.toggleShortcuts.bind(this, false)}
-                >
-                { shortcuts }
+                    autoScrollBodyContent={true}
+                    className={styles.shortcutsDialog}
+                    title="Keyboard Shortcuts"
+                    open={this.state.showShortcuts}
+                    onRequestClose={this.toggleShortcuts.bind(this, false)}
+                    >
+                    { shortcuts }
                 </Dialog>
             );
         } else {
