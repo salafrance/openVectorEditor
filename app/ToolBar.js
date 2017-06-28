@@ -31,6 +31,7 @@ import Check from 'material-ui/lib/svg-icons/navigation/check';
 import DropDownArrow from 'material-ui/lib/svg-icons/navigation/arrow-drop-down';
 import Divider from 'material-ui/lib/menus/menu-divider';
 
+// this folder
 import Search from './Search.js'
 import styles from './tool-bar.css'
 
@@ -78,19 +79,11 @@ export default class ToolBar extends React.Component {
             savedIdx
         } = this.props;
 
-        var restrictionDialog = (
-            <RestrictionEnzymeManager />
-        );
-
         var pressedButtonStyle = {boxShadow:'1px 1px 5px #888888 inset', background:'lightgray'};
         var unpressedButtonStyle = {boxShadow:'0px 0px 5px #888888', background:'rgb(232,232,232)'};
 
-        var gelDialog = (
-            <DigestionSimulation />
-        );
-
-        // show/hide views buttons that only appear in embedded mode
-        var embeddedControls = (
+        // show/hide views buttons, originally embedded only but in fullscreen for now too
+        var changeViewControls = (
             <div style={{display: 'inline-block', margin:'0 5px', verticalAlign:'top'}}>
                 <IconButton tooltip="Toggle Circular View"
                     style={showCircular ? pressedButtonStyle : unpressedButtonStyle }
@@ -147,21 +140,19 @@ export default class ToolBar extends React.Component {
                         signals.clickSaveFile({fileExt: 'fasta'});
                     }}
                     />
-                { embedded ? null : <Divider />}
-                { embedded ? null :
-                    <MenuItem key={5} primaryText="Upload from file ..." insetChildren={false}
-                        style={{padding:'0 20px'}}
-                        onClick={function () {
-                            var element = document.getElementById("uploadFileInput");
-                            element.click();
-                            element.addEventListener("change", handleFiles, false);
-                            function handleFiles() {
-                                let file = this.files[0];
-                                 signals.clickLoadFile({inputFile: file});
-                            }
-                        }}
-                        />
-                }
+                <Divider />
+                <MenuItem key={5} primaryText="Upload from file ..." insetChildren={false}
+                    style={{padding:'0 20px'}}
+                    onClick={function () {
+                        var element = document.getElementById("uploadFileInput");
+                        element.click();
+                        element.addEventListener("change", handleFiles, false);
+                        function handleFiles() {
+                            let file = this.files[0];
+                             signals.clickLoadFile({inputFile: file});
+                        }
+                    }}
+                    />
                 <input type="file" id="uploadFileInput" style={{display:'none'}} onChange={function() {
                 }} />
             </div>
@@ -223,7 +214,6 @@ export default class ToolBar extends React.Component {
         // and applies some styling to cleanup for print version
         var prepPrintPage = function() {
             // scroll the rowview to reveal all rows
-
             var contents = document.getElementById("allViews").innerHTML;
             var head = document.head.innerHTML;
             var stylePage = "<style>" +
@@ -263,7 +253,7 @@ export default class ToolBar extends React.Component {
                         <InputIcon id="openFeatureDisplay"/>
                     </IconButton>
 
-                    { embeddedControls }
+                    { changeViewControls }
 
                     <IconButton
                         style={ showSearchBar ? pressedButtonStyle : unpressedButtonStyle }
@@ -294,13 +284,14 @@ export default class ToolBar extends React.Component {
                         { visibilityMenuItems }
                     </IconMenu>
 
-                    <IconMenu
-                        className={styles.openableIcon}
-                        iconButtonElement={fileButtonElement}
-                        openDirection="bottom-right"
-                        >
-                        { fileMenuItems }
-                    </IconMenu>
+                    { embedded ? null : <IconMenu // we don't want to open files embedded and download is in ice already
+                            className={styles.openableIcon}
+                            iconButtonElement={fileButtonElement}
+                            openDirection="bottom-right"
+                            >
+                            { fileMenuItems }
+                        </IconMenu>
+                    }
 
                     <IconButton
                         style={{verticalAlign:'top'}}
@@ -314,15 +305,16 @@ export default class ToolBar extends React.Component {
                         <SaveIcon />
                     </IconButton>
 
-                    <IconButton
-                        style={{verticalAlign:'top'}}
-                        tooltip="Print Current View"
-                        onTouchTap={function() {
-                            prepPrintPage();
-                        }}
-                        >
-                        <PrintIcon />
-                    </IconButton>
+                    { embedded ? null : <IconButton // this is buggy right now so hide
+                            style={{verticalAlign:'top'}}
+                            tooltip="Print Current View"
+                            onTouchTap={function() {
+                                prepPrintPage();
+                            }}
+                            >
+                            <PrintIcon />
+                        </IconButton>
+                    }
 
                     <IconButton
                         label="Dialog"
@@ -334,8 +326,9 @@ export default class ToolBar extends React.Component {
                         <DigestionIcon />
                     </IconButton>
 
-                    { restrictionDialog }
-                    { gelDialog }
+                    <RestrictionEnzymeManager />
+
+                    <DigestionSimulation />
 
                 </ToolbarGroup>
             </Toolbar>
