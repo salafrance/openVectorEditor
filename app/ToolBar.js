@@ -295,7 +295,7 @@ export default class ToolBar extends React.Component {
 
                     <IconButton
                         style={{verticalAlign:'top'}}
-                        disabled={readOnly ? true : false}  // you can't save in read only; awkward syntax to fix bug
+                        disabled={ !!readOnly }  // you can't save in read only; awkward syntax to fix bug
                         tooltip="Save to Server"
                         className={styles[saveButtonStatus]}
                         onTouchTap={function() {

@@ -38,7 +38,11 @@ export default class DigestionSimulation extends React.Component {
         };
 
         var centerTileTitle = (
-            <div style={gridTileTitleStyle}>Active enzymes</div>
+            <div 
+                style={ gridTileTitleStyle }
+                >
+                Active enzymes
+            </div>
         );
 
         var gelDigestContentGrid = (
