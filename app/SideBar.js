@@ -446,6 +446,7 @@ export default class SideBar extends React.Component {
                     <ArrowDropDown/>
                     </IconButton>
                 </th>);
+
             // placeholder column for edit-icon
             tableHeaderCells.push(<th key='null' style={{minWidth: '48px'}}> </th>);
 
@@ -516,7 +517,7 @@ export default class SideBar extends React.Component {
             }
 
             // add / delete features controls
-            if (!readOnly) {
+            if(!readOnly) {
                 var featureControls = (
                     <div className={styles.controls}>
                         <IconButton

@@ -128,6 +128,10 @@
     line-height: 3em;
 }
 
+.tableContainer table thead th {
+    text-align: left;
+}
+
 .tableContainer table tbody tr {
     height: 49px;
     border-left: none;

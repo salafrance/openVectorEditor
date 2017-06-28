@@ -37,24 +37,6 @@ export default class DigestionSimulation extends React.Component {
             fontSize: '15px'
         };
 
-        var tileLeft = (
-            <div>
-                <EnzymesGroups />
-            </div>
-        );
-
-        var tileCenter = (
-            <div>
-                <ActiveEnzymes />
-            </div>
-        );
-
-        var tileRight = (
-            <div>
-                <Ladder />
-            </div>
-        );
-
         var centerTileTitle = (
             <div style={gridTileTitleStyle}>Active enzymes</div>
         );
@@ -68,24 +50,34 @@ export default class DigestionSimulation extends React.Component {
                     padding={10}
                     >
                     <GridTile
+                        key="enzymeGroups"
                         rows={1}
                         cols={1}
                         >
-                        {tileLeft}
+                        <div>
+                            <EnzymesGroups />
+                        </div>
                     </GridTile>
                     <GridTile
+                        key="activeEnzymes"
                         rows={1}
-                        cols={1} title={centerTileTitle}
+                        cols={1} 
+                        title={ centerTileTitle }
                         titlePosition={"top"}
                         titleBackground="#E0E0E0"
                         >
-                        {tileCenter}
+                        <div>
+                            <ActiveEnzymes />
+                        </div>
                     </GridTile>
                     <GridTile
+                        key="gelLadder"
                         rows={1}
                         cols={1}
                         >
-                        {tileRight}
+                        <div>
+                            <Ladder />
+                        </div>
                     </GridTile>
                 </GridList>
             </div>
@@ -109,12 +101,12 @@ export default class DigestionSimulation extends React.Component {
                     bodyStyle={{padding:'25px 25px 0 25px'}}
                     ref="gelDigest"
                     title="Gel Digest"
-                    autoDetectWindowHeight={true}
-                    actions={actions}
-                    open={toOpen}
+                    autoDetectWindowHeight={ true }
+                    actions={ actions }
+                    open={ toOpen }
                     titleStyle={{padding:'25px 0 0 50px', color:"black", background:"white"}}
                     >
-                    {gelDigestContentGrid}
+                    { gelDigestContentGrid }
                 </Dialog>
             </div>
         );
