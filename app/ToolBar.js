@@ -42,6 +42,7 @@ import styles from './tool-bar.css'
     showCircular: ['showCircular'],
     showCutsites: ['showCutsites'],
     showFeatures: ['showFeatures'],
+    showGelDigestDialog: ['showGelDigestDialog'],
     showOrfs: ['showOrfs'],
     showParts: ['showParts'],
     showRestrictionEnzymeManager: ['showRestrictionEnzymeManager'],
@@ -65,6 +66,7 @@ export default class ToolBar extends React.Component {
             showCircular,
             showCutsites,
             showFeatures,
+            showGelDigestDialog,
             showOrfs,
             showParts,
             showRestrictionEnzymeManager,
@@ -109,6 +111,32 @@ export default class ToolBar extends React.Component {
                     }}
                     >
                     <RowIcon />
+                </IconButton>
+            </div>
+        )
+
+        var enzymeTools = (
+            <div style={{display: 'inline-block', margin:'0 5px', verticalAlign:'top'}}>
+                <IconButton
+                    style={ showRestrictionEnzymeManager ? pressedButtonStyle : unpressedButtonStyle }
+                    label="Dialog"
+                    tooltip="Manage Restriction Enzymes"
+                    onTouchTap={function() {
+                        signals.restrictionEnzymeManagerDisplay();
+                    }}
+                    >
+                    <EnzymesIcon />
+                </IconButton>
+
+                <IconButton
+                    style={ showGelDigestDialog ? pressedButtonStyle : unpressedButtonStyle }
+                    label="Dialog"
+                    tooltip="Simulate Digestion"
+                    onTouchTap={function() {
+                        signals.gelDigestDisplay();
+                    }}
+                    >
+                    <DigestionIcon />
                 </IconButton>
             </div>
         )
@@ -266,16 +294,7 @@ export default class ToolBar extends React.Component {
 
                     <Search />
 
-                    <IconButton
-                        style={ showRestrictionEnzymeManager ? pressedButtonStyle : unpressedButtonStyle }
-                        label="Dialog"
-                        tooltip="Manage Restriction Enzymes"
-                        onTouchTap={function() {
-                            signals.restrictionEnzymeManagerDisplay();
-                        }}
-                        >
-                        <EnzymesIcon />
-                    </IconButton>
+                    {enzymeTools}
 
                     <IconMenu
                         iconButtonElement = { visibleButtonElement }
@@ -315,16 +334,6 @@ export default class ToolBar extends React.Component {
                             <PrintIcon />
                         </IconButton>
                     }
-
-                    <IconButton
-                        label="Dialog"
-                        tooltip="Simulate Digestion"
-                        onTouchTap={function() {
-                            signals.gelDigestDisplay();
-                        }}
-                        >
-                        <DigestionIcon />
-                    </IconButton>
 
                     <RestrictionEnzymeManager />
 
