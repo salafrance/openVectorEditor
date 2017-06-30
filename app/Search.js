@@ -25,6 +25,7 @@ export default class Search extends React.Component {
             searchIdx: 0,
             dna: "DNA",
             literal: "Literal",
+            timeout: null
         };
     }
 
@@ -62,6 +63,12 @@ export default class Search extends React.Component {
             dna: this.state.dna,
             literal: this.state.literal
         });
+    }
+
+    setTimeout(timeout) {
+        clearTimeout(timeout);
+        // wait 500ms for user to stop typing before searching
+        timeout = setTimeout(this.search.bind(this), 500);
     }
 
     clearSearch() {
@@ -122,6 +129,8 @@ export default class Search extends React.Component {
             showSearchBar,
             searchString,
         } = this.props;
+
+        var timeout = null;
 
         if (!showSearchBar) {
             return(<div style={{display: 'none'}}></div>);
@@ -196,7 +205,7 @@ export default class Search extends React.Component {
                 </div>
                 <TextField ref="searchField" hintText="search sequence"
                     style={{marginRight:'10px', width:'150px', verticalAlign:'middle'}}
-                    onChange={this.search.bind(this)}
+                    onChange={this.setTimeout.bind(this, timeout)}
                     errorText={
                         searchLayers.length === 0 && searchString.length > 0 && "no results"
                     }
