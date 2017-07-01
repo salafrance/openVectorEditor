@@ -59,9 +59,20 @@ export default class StatusBar extends React.Component {
             history,
             historyIdx,
         } = this.props;
+
         var caretPosition = this.props.caretPosition + 1;
-        var selectionStart = (selectionLayer.start != -1) ? selectionLayer.start + 1 : '--';
-        var selectionEnd = (selectionLayer.end != -1) ? selectionLayer.end + 1 : '--';
+        var selectionStart = '--';
+        var selectionEnd = '--';
+        var selectionLength = '';
+        if (selectionLayer.start != -1 && selectionLayer.end != -1) {
+            selectionStart = selectionLayer.start + 1;
+            selectionEnd = selectionLayer.end + 1;
+            selectionLength = selectionLayer.end - selectionLayer.start + 1;
+            if (selectionLength <= 0) { // selectionLayer is wrapped around origin
+                selectionLength += sequenceLength;
+            }
+            selectionLength = '('+selectionLength+')';
+        }
 
         // {{}} needs styling
         var shortcuts = (
@@ -228,7 +239,7 @@ export default class StatusBar extends React.Component {
                     <div className={styles.box}>
                         <div className={styles.label}>Selection</div>
                         <div className={styles.data}>
-                            {selectionStart} : {selectionEnd}
+                            {selectionStart} : {selectionEnd} {selectionLength}
                         </div>
                     </div>
                 </div>
