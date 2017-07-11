@@ -12,10 +12,10 @@ export default function saveToFile({input, state, output}) {
 
     if(fileExt.match("sbol1|sbol2|genbank|fasta|original")
         && iceId
-        && sid) 
+        && sid)
     // a request made to ice with this format will tell it to send the file for download
     {
-        window.open(origin + '/rest/file/' + iceId + '/sequence/' + fileExt + '?sid=' + sid)
+        window.open(origin + '/rest/file/' + iceId + '/sequence/' + fileExt + '?sid=' + sid, "_self")
     } else {
         console.log("something went wrong, unable to find file");
     }

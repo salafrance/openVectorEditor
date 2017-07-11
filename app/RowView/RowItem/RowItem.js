@@ -27,7 +27,7 @@ function noop() {
     cutsites: ['cutsites'],
     cutsitesByName: ['cutsitesByName'],
     letterSpacing: ['letterSpacing'],
-    orfs: ['orfData'],
+    orfs: ['orfs'],
     rowData: ['rowData'],
     searchLayers: ['searchLayers'],
     selectionLayer: ['selectionLayer'],

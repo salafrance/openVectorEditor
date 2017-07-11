@@ -113,10 +113,9 @@
 
 .tableContainer {
     position: absolute;
-    top: 60px;
+    top: 42px; /*this is the size of the feature-cutsite-orf tabs*/
     left: 20px;
     right: 0;
-    bottom: 50px;
     overflow-y: scroll;
 }
 
@@ -126,6 +125,10 @@
 
 .tableContainer table thead tr {
     line-height: 3em;
+}
+
+.tableContainer table thead th {
+    text-align: left;
 }
 
 .tableContainer table tbody tr {
@@ -142,7 +145,7 @@
     bottom: 0;
     width: 100%;
     border-top: 1px solid #ccc;
-    margin-left: 3px;
+    margin-left: 5px;
 }
 
 .orfControl {

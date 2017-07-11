@@ -2,8 +2,6 @@ import React, {PropTypes} from 'react';
 import {Decorator as Cerebral} from 'cerebral-view-react';
 import ReactList from 'react-list';
 import List from 'material-ui/lib/lists/list';
-// import ListItem from 'material-ui/lib/lists/list-item';
-// import Checkbox from 'material-ui/lib/checkbox';
 import RaisedButton from 'material-ui/lib/raised-button';
 import styles from './manager-list.scss';
 
@@ -142,7 +140,7 @@ export default class EnzymesGroups extends React.Component {
                     underlineStyle = {{opacity: 0}}
                     iconStyle = {{fill: "black"}}
                     label="Enzyme Groups"
-                    labelStyle = {{fontWeight: 650, fontSize: 17, color: "black"}}
+                    labelStyle = {{fontSize: 15, color: "black", lineHeight:'48px'}}
                     />
 
                 <input
@@ -179,7 +177,7 @@ export default class EnzymesGroups extends React.Component {
                 </List>
 
                 <RaisedButton
-                    className={styles.raisedButton}
+                    className={styles.raisedBlueButton}
                     label="Add all"
                     secondary={true}
                     onTouchTap={function () {

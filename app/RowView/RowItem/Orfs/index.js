@@ -4,6 +4,7 @@ let getAnnotationRangeType = require('ve-range-utils/getAnnotationRangeType');
 let Orf = require('./Orf');
 let AnnotationContainerHolder = require('../AnnotationContainerHolder');
 let AnnotationPositioner = require('../AnnotationPositioner');
+var assign = require('lodash/object/assign');
 
 let Orfs = React.createClass({
 
@@ -38,8 +39,14 @@ let Orfs = React.createClass({
                     return position - row.start;
                 }
             )
-
-            let result = getXStartAndWidthOfRowAnnotation(annotationRange, bpsPerRow, charWidth);
+            let offsetAnnotationRange = Object.assign({}, annotationRange);
+            // if (annotationRange.start > row.start && annotationRange.start < row.end) {
+            //     offsetAnnotationRange.start += 0.5;
+            // }
+            // if (annotationRange.end < row.end && annotationRange.end < row.end) {
+            //     offsetAnnotationRange.end += 0.5;
+            // }
+            let result = getXStartAndWidthOfRowAnnotation(offsetAnnotationRange, bpsPerRow, charWidth);
             var arrowHeight = 12;
 
             annotationsSVG.push(
@@ -53,7 +60,8 @@ let Orfs = React.createClass({
                     >
                     <Orf
                         annotation={annotation}
-                        widthInBps={annotationRange.end - annotationRange.start + 1}
+                        bpsPerRow={bpsPerRow}
+                        widthInBps={offsetAnnotationRange.end - offsetAnnotationRange.start + 1}
                         charWidth={charWidth}
                         forward={annotation.forward}
                         frame={annotation.frame}
