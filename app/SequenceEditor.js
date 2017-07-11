@@ -189,7 +189,7 @@ export default class SequenceEditor extends React.Component {
 
         // add feature button that appears outside of sidebar when there's a selectionLayer
         var addFeatureButton = <div></div>;
-        if (!showSidebar && selectionLayer.start > 0) {
+        if (!showSidebar && selectionLayer.start > 0 && !readOnly) {
             addFeatureButton =
                 <IconButton
                     style={{position:'absolute', bottom:'115px', left:'5px', zIndex:'500', backgroundColor:'rgba(255,255,255,0.5)'}}

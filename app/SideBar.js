@@ -299,7 +299,7 @@ export default class SideBar extends React.Component {
                 a = a[column];
                 b = b[column];
             }
-            return (a < b) ? -1*sortOrder : (a > b) ? sortOrder : 0;
+            return (a < b) ? -1 * sortOrder : (a > b) ? sortOrder : 0;
         }
     }
 
@@ -495,15 +495,17 @@ export default class SideBar extends React.Component {
                     if (this.state.selectedFeatures.indexOf(sorted[i].id) !== -1) {
                         rowStyle = { backgroundColor: 'lightblue' };
                         let cellStyle = {textAlign: 'center', cursor: 'pointer'};
-                        var editCell = (
-                            <td key={j+1}>
-                                <IconButton
-                                onClick={this.onEditIconClick.bind(this, sorted[i].id)}
-                                tooltip="edit">
-                                <ModeEdit style={{width: '18px', height: '18px'}}/>
-                                </IconButton>
-                           </td>);
-                        annotationTableCells.push(editCell);
+                        if(!readOnly) {
+                            var editCell = (
+                                <td key={j+1}>
+                                    <IconButton
+                                    onClick={this.onEditIconClick.bind(this, sorted[i].id)}
+                                    tooltip="edit">
+                                    <ModeEdit style={{width: '18px', height: '18px'}}/>
+                                    </IconButton>
+                               </td>);
+                            annotationTableCells.push(editCell);
+                        }
                     } else {
                         annotationTableCells.push(
                             <td key={j+1}
