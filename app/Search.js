@@ -71,15 +71,6 @@ export default class Search extends React.Component {
         timeout = setTimeout(this.search.bind(this), 500);
     }
 
-    clearSearch() {
-        this.refs.searchField.setValue("");
-        this.props.signals.searchSequence({
-            searchString: "",
-            dna: this.state.dna,
-            literal: this.state.literal
-        });
-    }
-
     selectField(event) {
         // dna/amino acids and literal/ambiguous dropdown boxes
         var dna = this.state.dna;
@@ -140,7 +131,7 @@ export default class Search extends React.Component {
         var navigateSearchResults;
         if (searchLayers.length > 0) {
             navigateSearchResults = (
-                <div style={{display:'inline-block', marginRight:'10px', width:'150px', verticalAlign:'middle'}}>
+                <div style={{display:'inline-block', margin:'0 10px 10px 0', width:'150px', verticalAlign:'middle'}}>
 
                     <div style={{display: 'inline-block', fontStyle: 'italic', fontSize: '9pt'}}>
                         {this.state.searchIdx} of {searchLayers.length}
@@ -171,7 +162,7 @@ export default class Search extends React.Component {
         // dna/amino acids dropdown box
         var dnaDropdown = (
             <SelectField
-                style={{display:'inline-block', marginRight:'10px', width:'130px', verticalAlign:'middle'}}
+                style={{display:'inline-block', margin:'10px 10px 0 0', width:'130px', verticalAlign:'middle'}}
                 id={"dnaDropdown"}
                 onChange={this.selectField.bind(this)}
                 menuItems={[
@@ -184,7 +175,7 @@ export default class Search extends React.Component {
         // literal/ambiguous dropdown box
         var literalDropdown = (
             <SelectField
-                style={{display:'inline-block', marginRight:'10px', width:'130px', verticalAlign:'middle'}}
+                style={{display:'inline-block', margin:'10px 10px 0 0', width:'130px', verticalAlign:'middle'}}
                 id={"literalDropdown"}
                 onChange={this.selectField.bind(this)}
                 menuItems={[
@@ -198,13 +189,10 @@ export default class Search extends React.Component {
             <div
                 ref="searchBar"
                 style={{position:'absolute', zIndex:'10', width:'1000px', left:'20px'}}>
-                <div
-                    style={{position:'absolute', top:'13px', left:'-20px', cursor:'pointer', fontSize:'13pt'}}
-                    onClick={this.clearSearch.bind(this)}>
-                    x
-                </div>
                 <TextField ref="searchField" hintText="search sequence"
-                    style={{marginRight:'10px', width:'150px', verticalAlign:'middle'}}
+                    style={{margin:'10px 10px 0 0', width:'150px', verticalAlign:'middle'}}
+                    inputStyle={{paddingBottom:'5px'}}
+                    hintStyle={{paddingBottom:'3px'}} // i don't know why these aren't lined up
                     onChange={this.setTimeout.bind(this, timeout)}
                     errorText={
                         searchLayers.length === 0 && searchString.length > 0 && "no results"
