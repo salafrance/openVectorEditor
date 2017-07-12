@@ -68,10 +68,10 @@ export default function copySelection({input, state, output}) {
         var newClipboardData = {
             allFeatures: sequenceData.features,
             features: selectionData.features,
-            genbankStartBP: selectionStart,
+            genbankStartBP: selectionStart+1, //offset necessary for 1-based indexing
             name: sequenceData.name,
             circular: sequenceData.circular,
-            endBP: selectionEnd,
+            endBP: selectionEnd+1, //offset necessary for 1-based indexing
             _id: sequenceData._id,
             fullSequence: sequenceData.sequence,
             sequence: selectionData.sequence,

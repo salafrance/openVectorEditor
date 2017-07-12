@@ -119,12 +119,7 @@ export default class StatusBar extends React.Component {
 
         // {{}} clearly this needs some editing...
         var about = (
-            <div style={{height:'250px', width:'300px'}}>
-                <div>JBEI! Behold our awesome logo</div>
-                <div>I suppose there is a version number somewhere</div>
-                <div>And probably link to github, too</div>
-                <div>Lorem ipsum, etc...</div>
-            </div>
+            <div style={{height:'250px', width:'300px'}}>Coming soon!</div>
         );
 
         if (this.state.showAbout) {
