@@ -1,6 +1,8 @@
 import React, { PropTypes } from 'react';
 import { Decorator as Cerebral } from 'cerebral-view-react';
 
+var isEqual = require('lodash/lang/isEqual');
+
 @Cerebral({
     clipboardData: ['clipboardData'],
 })
@@ -33,7 +35,7 @@ export default class Clipboard extends React.Component {
             document.removeEventListener('copy', copy, true);
             document.removeEventListener('cut', copy, true);
         }
-        if (this.props.clipboardData !== newProps.clipboardData && newProps.clipboardData.sequence) {
+        if (!isEqual(this.props.clipboardData, newProps.clipboardData) && newProps.clipboardData.sequence) {
             document.addEventListener('copy', copy, true);
             document.addEventListener('cut', copy, true);
         }
