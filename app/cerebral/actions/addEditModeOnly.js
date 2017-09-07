@@ -4,7 +4,7 @@ module.exports = function addEditModeOnly(actionArray) {
         checkIfEditAllowed, {
             editAllowed: actionArray,
             readOnly: [function({input, state, output}) {
-                console.log('Unable to complete action while in Read Only mode')
+                console.log('Unable to complete action ' + actionArray + ' while in Read Only mode')
             }]
         }
     ];

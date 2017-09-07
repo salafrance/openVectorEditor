@@ -136,8 +136,9 @@ export default class SequenceEditor extends React.Component {
             event.stopPropagation();
         });
         combokeys.bindGlobal('command+c', function(event) { // Handle shortcut
+            event.preventDefault();
             copySelection();
-            event.stopPropagation();
+            // event.stopPropagation();
         });
         combokeys.bindGlobal('command+x', function(event) { // Handle shortcut
             cutSelection();

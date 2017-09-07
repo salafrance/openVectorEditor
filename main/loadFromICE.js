@@ -8,12 +8,11 @@ var id;
         id = window.frameElement.id; // grab the entry ID off the iframe tag
     } else {
         id = document.referrer; // this works weird in firefox but always works fullscreen
-        id = id.replace(/.+entry\//, "");        
+        id = id.replace(/.+entry\//, "");
     }
-    console.log(id)
 var cookie = document.cookie;
 var sid = cookie.match(/sessionId=%22[0-9a-z\-]+%22/) + "";
-    sid = sid.replace(/sessionId=|%22/g, "");
+    sid = sid.replace(/sessionId=|%22/g, ""); // trim quotation marks
 
 var ORIGIN = document.location.origin // this works fine on embedded because the origin's the same
 console.log(ORIGIN + '/rest/parts/' + id + '/sequence')
