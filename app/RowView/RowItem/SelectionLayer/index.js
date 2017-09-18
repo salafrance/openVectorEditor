@@ -2,21 +2,8 @@ import React, {PropTypes} from 'react';
 import Caret from '../Caret';
 import './style.scss';
 
-// var getXStartAndWidthOfRangeWrtRow = require('../getXStartAndWidthOfRangeWrtRow');
 let getOverlapsOfPotentiallyCircularRanges = require('ve-range-utils/getOverlapsOfPotentiallyCircularRanges');
 import normalizePositionByRangeLength from 've-range-utils/normalizePositionByRangeLength';
-
-// function mixin(target, source) {
-//     target = target.prototype;
-
-//     Object.getOwnPropertyNames(source).forEach((name) => {
-//         let sourceProp = Object.getOwnPropertyDescriptor(source, name);
-
-//         if (name !== "constructor") {
-//             Object.defineProperty(target, name, sourceProp);
-//         }
-//     });
-// }
 
 // move this into shared utils
 function getXStartAndWidthOfRangeWrtRow(range, row, bpsPerRow, charWidth, sequenceLength) {
@@ -34,27 +21,26 @@ export default class SelectionLayer extends React.Component {
             row,
             sequenceLength,
             regions,
-            className: globalClassname=''
+            signals
         } = this.props;
 
         return (
             <div>
                 {regions.map(function (selectionLayer, index) {
                     var {
-                        showCarets = true, 
-                        className='', 
-                        style={}, 
-                        start, 
-                        end, 
-                        color 
+                        showCarets = true,
+                        className='',
+                        style={},
+                        start,
+                        end,
+                        color
                     } = selectionLayer
-                    var classNameToPass = 'veRowViewSelectionLayer ' 
-                                        + className + ' ' 
-                                        + className + ' ' 
+                    var classNameToPass = 'veRowViewSelectionLayer '
+                                        + className + ' '
+                                        + className + ' '
                                         + globalClassname
                     if (start > -1) {
                         var overlaps = getOverlapsOfPotentiallyCircularRanges(selectionLayer, row, sequenceLength);
-                        
                         //DRAW SELECTION LAYER
                         return (overlaps.map(function(overlap, index) {
                             var {xStart, width} = getXStartAndWidthOfRangeWrtRow(overlap, row, bpsPerRow, charWidth, sequenceLength);
@@ -63,7 +49,7 @@ export default class SelectionLayer extends React.Component {
                             if (showCarets) {
                                 //DRAW CARETS
                                 caretSvgs = [
-                                    (overlap.start === start) && 
+                                    (overlap.start === start) &&
                                         <Caret {...{
                                             charWidth,
                                             row,
@@ -71,8 +57,8 @@ export default class SelectionLayer extends React.Component {
                                             className: classNameToPass,
                                             caretPosition: overlap.start
                                             }}
-                                            />, 
-                                        (overlap.end === end) && 
+                                            />,
+                                        (overlap.end === end) &&
                                         <Caret {...{
                                             charWidth,
                                             row,
@@ -84,9 +70,9 @@ export default class SelectionLayer extends React.Component {
                                 ]
                             }
                             return [
-                                <div 
-                                    key={index} 
-                                    className={classNameToPass} 
+                                <div
+                                    key={index}
+                                    className={classNameToPass}
                                     style={{
                                         width,
                                         left: xStart,

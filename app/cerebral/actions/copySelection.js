@@ -1,8 +1,3 @@
-/**
-earavina: this function was replaced by module copySelectionModule
-to avoid asynchronous calls
- */
-
 var assign = require('lodash/object/assign');
 var getOverlapsOfPotentiallyCircularRanges = require('ve-range-utils/getOverlapsOfPotentiallyCircularRanges');
 var collapseOverlapsGeneratedFromRangeComparisonIfPossible = require('ve-range-utils/collapseOverlapsGeneratedFromRangeComparisonIfPossible');
@@ -11,8 +6,8 @@ var getSubstringByRange = require('get-substring-by-range');
 export default function copySelection({input, state, output}) {
     var { selectionLayer, sequenceData } = state.get();
     var allowPartialAnnotationsOnCopy = state.get('allowPartialAnnotationsOnCopy');
-    var selectionStart = undefined;
-    var selectionEnd = undefined;
+    var selectionStart = selectionLayer.start;
+    var selectionEnd = selectionLayer.end;
 
     function copyRangeOfSequenceData(sequenceData, rangeToCopy, allowPartialAnnotationsOnCopy) {
         selectionStart = rangeToCopy.start;
@@ -70,21 +65,21 @@ export default function copySelection({input, state, output}) {
         var indSession = window.location.search.indexOf("sessionId");
         url += window.location.search.slice(indEntry + 8, indSession - 1);
 
-        let newClipboardData = {
+        var newClipboardData = {
             allFeatures: sequenceData.features,
             features: selectionData.features,
-            genbankStartBP: selectionStart,
+            genbankStartBP: selectionStart+1, //offset necessary for 1-based indexing
             name: sequenceData.name,
             circular: sequenceData.circular,
-            endBP: selectionEnd,
+            endBP: selectionEnd+1, //offset necessary for 1-based indexing
             _id: sequenceData._id,
             fullSequence: sequenceData.sequence,
             sequence: selectionData.sequence,
             url: url,
         };
 
-        output.success({'clipboardData': newClipboardData});
+        state.set('clipboardData', newClipboardData);
     } else {
-        output.error();
+        state.set('clipboardData', {})
     }
 }

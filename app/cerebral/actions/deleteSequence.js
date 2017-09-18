@@ -11,7 +11,7 @@ export default function deleteSequence({state, output}) {
         newCaretPosition = selectionLayer.start - selectionLayer.end - 1;
     }
     // lodash assign
-    var newSequenceData =assign({}, sequenceData);
+    var newSequenceData = assign({}, sequenceData);
     if (sequenceData.sequence) {
         //splice the underlying sequence
         if (selectionLayer.start > selectionLayer.end) {

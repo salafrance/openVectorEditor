@@ -13,34 +13,56 @@ reqContext.keys().forEach(function(key) {
 import assign from 'lodash/object/assign'
 var each = require('lodash/collection/each');
 export default function(options) {
+
     a = assign({}, a, options.actions) //override any actions here!
+
     var signals = {
+        /* These should be in alphabetical order and are split into edit-only
+        and general (read or edit) signals
+        Unused or broken signals are edited out */
 
-        setTreeVal: [
-            a.setData
+        addFeatureModalDisplay: [
+            a.addFeatureModalDisplay
         ],
 
-        // sidebar signals
-        sidebarToggle: [
-            a.sidebarToggle
+        adjustWidth: [
+            a.adjustWidth
         ],
-        sidebarDisplay: [
-            a.sidebarDisplay
+
+        caretMoved: [
+            a.getData('selectionLayer', 'caretPosition', 'sequenceLength', 'bpsPerRow', {
+                path: ['sequenceData', 'circular'],
+                name: 'circular'
+            }),
+
+            a.moveCaret,
+            a.handleCaretMoved, {
+                caretMoved: [a.clearSelectionLayer, a.setCaretPosition],
+                selectionUpdated: [a.setSelectionLayer],
+            }
         ],
+
         changeOrfMin: [
             a.changeOrfMin
         ],
-        // end sidebar
-        copySelection: [ // earavina: not used for now
-            a.copySelection, {
-                success: [a.setData('clipboardData')],
-                error: [] //tnr: we should probably have some sort of generic info/warning message that we can display when things go wrong
-            }
+
+        chooseEnzymeList: [
+            a.showSelectedEnzymeList
         ],
-        selectAll: [a.selectAll, a.setSelectionLayer],
-        selectInverse: [a.selectInverse, a.setSelectionLayer],
-        setCutsiteLabelSelection: [a.setCutsiteLabelSelection],
-        toggleAnnotationDisplay: [a.toggleAnnotationDisplay],
+
+        // there's weird bracketing here to deal with the async superagent request
+        clickLoadFile: [
+            [a.loadFromFile, {
+                success: [a.overwriteSequenceData],
+                error: [a.displayError]
+            }]
+        ],
+
+        createFragmentsLines: [
+            a.createFragmentsLines
+        ],
+
+        cutsiteClicked: c.selectAnnotation(a),
 
         editorClicked: [
             a.checkBooleanState(['editorDrag', 'inProgress']), {
@@ -59,29 +81,18 @@ export default function(options) {
                 ]
             }
         ],
-        featureClicked: c.selectAnnotation(a),
-        orfClicked: c.selectAnnotation(a),
-        caretMoved: [
-            a.getData('selectionLayer', 'caretPosition', 'sequenceLength', 'bpsPerRow', {
-                path: ['sequenceData', 'circular'],
-                name: 'circular'
-            }),
 
-            a.moveCaret,
-            a.handleCaretMoved, {
-                caretMoved: [a.clearSelectionLayer, a.setCaretPosition],
-                selectionUpdated: [a.setSelectionLayer],
-            }
-        ],
         editorDragged: [
             a.handleEditorDragged, {
                 caretMoved: [a.clearSelectionLayer, a.setCaretPosition],
                 selectionUpdated: [a.setSelectionLayer],
             }
         ],
+
         editorDragStarted: [
             a.handleEditorDragStarted
         ],
+
         editorDragStopped: [
             [function pause ({input, state, output}) {
                 // {{}} async function that doesn't do anything
@@ -91,51 +102,138 @@ export default function(options) {
             }],
             a.handleEditorDragStopped
         ],
-        // resizeRowView: [
-        //     a.resizeRowView
-        // ],
-        // resizeCircularView: [
-        //     a.resizeCircularView
-        // ],
-        searchSequence: [
-            a.searchSequence,
-            a.updateSearchLayers
+
+        editUserEnzymes: [
+            a.editUserEnzymes
         ],
-        setSelectionLayer: [a.setSelectionLayer],
+
+        editDigestEnzymes: [
+            a.editDigestEnzymes
+        ],
+
+        featureClicked: c.selectAnnotation(a),
+
+        gelDigestDisplay: [
+            a.gelDigestDisplay
+        ],
+
+        jumpToRow: [
+            a.jumpToRow
+        ],
+
+        orfClicked: c.selectAnnotation(a),
 
         restrictionEnzymeManagerDisplay: [
             a.restrictionEnzymeManagerDisplay
         ],
 
-        editUserEnzymes: [
-            a.editUserEnzymes
+        searchSequence: [
+            a.searchSequence,
+        ],
+
+        selectAll: [
+            a.selectAll,
+            a.setSelectionLayer
+        ],
+
+        selectInverse: [
+            a.checkLayerIsSelected, {
+                selected: [
+                    a.selectInverse,
+                    a.setSelectionLayer
+                ],
+                notSelected: [] // do nothing
+            },
+        ],
+
+        // setCutsiteLabelSelection:[
+        //     a.setCutsiteLabelSelection
+        // ],
+
+        setSelectionLayer: [
+            a.setSelectionLayer,
+        ],
+
+        setTreeVal: [
+            a.setData
+        ],
+
+        showChangeMinOrfSizeDialog: [
+            a.showChangeMinOrfSizeDialog
+        ],
+
+        sidebarDisplay: [
+            a.sidebarDisplay
+        ],
+
+        sidebarToggle: [
+            a.sidebarToggle
+        ],
+
+        toggleAnnotationDisplay: [
+            a.toggleAnnotationDisplay
+        ],
+
+        toggleSearchBar: [
+            a.toggleSearchBar
+        ],
+        toggleShowCircular: [
+            a.toggleShowCircular
+        ],
+        toggleShowRow: [
+            a.toggleShowRow
+        ],
+
+        updateHistory: [
+            a.updateHistory
         ],
 
         updateUserEnzymes: [
             a.updateUserEnzymes
         ],
 
-        chooseEnzymeList: [
-            a.showSelectedEnzymeList
-        ],
-
-        addFeatureModalDisplay: [
-            a.addFeatureModalDisplay
-        ],
-
-        showChangeMinOrfSizeDialog: [
-            a.showChangeMinOrfSizeDialog
-        ],
-        
     // ///////////////////////////////////
     // edit only actions
+
+        addAnnotations: [
+            a.addAnnotations
+        ],
+
+        // {{}} does this need to be a chain?
         backspacePressed: a.addEditModeOnly([
             a.checkLayerIsSelected, {
-                selected: [a.deleteSequence],
+                selected: [a.checkSafeEdit, {
+                    safeEditOn: [a.presentFeatures, {
+                        foundFeatures: [a.deleteSequence], // safe edit stuff will go here
+                        noFeatures: [a.deleteSequence]
+                    }],
+                    safeEditOff: [a.deleteSequence]
+                }],
                 notSelected: [a.prepDeleteOneBack, a.deleteSequence]
             }
         ]),
-        // paste sequence from clipboard
+
+        clickSaveFile: [
+            a.saveToFile
+        ],
+
+        copySelection: [
+            a.copySelection
+        ],
+
+        // {{}} we may need to check safe edit here too
+        cutSelection: [
+            a.copySelection,
+            a.checkLayerIsSelected, {
+                selected: [a.deleteSequence],
+                notSelected: [] // do nothing
+            },
+        ],
+
+        deleteFeatures: a.addEditModeOnly([
+            a.deleteFeatures
+        ]),
+
         pasteSequenceString: a.addEditModeOnly([
             a.pasteSequenceString, {
                 success: [
@@ -145,17 +243,15 @@ export default function(options) {
                     },
                     a.insertSequenceData
                 ],
-                error: []
+                error: [a.displayError]
             },
             a.clearSelectionLayer
         ]),
-        // type sequence from keyboard
-        deleteFeatures: a.addEditModeOnly([
-            a.deleteFeatures
-        ]),
-        updateFeature: a.addEditModeOnly([
-            a.updateFeature
-        ]),
+
+        saveChanges: [
+            a.saveToServer,
+        ],
+
         sequenceDataInserted: a.addEditModeOnly([
             a.checkLayerIsSelected, {
                 selected: [a.deleteSequence],
@@ -164,21 +260,11 @@ export default function(options) {
             a.insertSequenceData,
             a.clearSelectionLayer
         ]),
-        // loading and saving local files
-        clickSaveFile:
-            [a.saveToFile],
-        saveChanges:
-            [a.saveToServer],
-        clickLoadFile: [
-            [a.loadFromFile], {
-                success: [a.insertSequenceData],
-                error: []
-            }
-        ],
-        //lower priority
-        addAnnotations: [a.addAnnotations],
-        jumpToRow: [a.jumpToRow],
-    }
-    return assign({}, signals, options.signals) //optionally override any signals here
-}
 
+        updateFeature: a.addEditModeOnly([
+            a.updateFeature
+        ])
+    }
+
+    return assign({}, signals, options.signals)
+}
