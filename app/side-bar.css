@@ -1,0 +1,181 @@
+.editrow input:invalid {
+    border-color: red;
+}
+
+.editrow input:valid {
+    border-color: #00bcd4;
+}
+
+.editrow input {
+    width: 75%;
+}
+
+.editrow input, .selectInput {
+    border-top: none;
+    border-right: none;
+    border-bottom: 2px solid #00bcd4;
+    border-left: none;
+    font-style: italic;
+    background-color: transparent;
+    padding: 0 0 0 5px;
+}
+
+.editrow * {
+    font-size: 14px;
+    border: none;
+}
+
+.editrow input[type=text] {
+    padding: 0 0 0 5px;
+}
+
+.editrow input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.editrow input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+.typeValue {
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    border-bottom: 2px solid #00bcd4;
+    width: 75%;
+    display: inline;
+    padding: 0 5px 0 5px;
+}
+
+.hidden {
+    display: none;
+}
+
+.visible {
+    background-color: white;
+    font-style: normal;
+    border: 1px solid lightgray;
+    visibility: visible;
+    position: absolute;
+    display: block;
+    width: 200px;
+    padding: 0;
+    max-height: 332.66px; /**yes this highly specific number is on purpose...**/
+    overflow-y: scroll;
+    left: 130px;
+    margin-top: -13px;
+    box-shadow: 2px 2px 2px gray;
+}
+
+.visible ui, .selectField ui {
+    position: relative;
+    display: block;
+    padding: 5px 10px 5px 30px;
+}
+
+.visible ui:hover, .selectField ui:hover {
+    background-color: whitesmoke;
+}
+
+.visible .selectedType, .selectField .selectedType {
+    color: #00bcd4;
+}
+
+.editrow td.position input {
+    display: inline;
+    width: 40% !important;
+}
+
+.editrow td.position input{
+    display: inline;
+}
+
+.editrow td.strand, td.strand input  {
+    text-align: center;
+}
+
+.selectField {
+    background-color: white;
+    font-style: normal;
+    border: 1px solid lightgray;
+    visibility: visible;
+    display: block;
+    position: absolute;
+    width: 200px;
+    padding: 0;
+    z-index: 100;
+    max-height: 250px;
+    overflow-y: scroll;
+    margin-top: -13px;
+    box-shadow: 2px 2px 2px gray;
+}
+
+.tableContainer {
+    position: absolute;
+    top: 42px; /*this is the size of the feature-cutsite-orf tabs*/
+    left: 20px;
+    right: 0;
+    overflow-y: scroll;
+}
+
+.tableContainer table {
+    width: 100%;
+}
+
+.tableContainer table thead tr {
+    line-height: 3em;
+}
+
+.tableContainer table thead th {
+    text-align: left;
+}
+
+.tableContainer table tbody tr {
+    height: 49px;
+    border-left: none;
+    border-right: none;
+    border-top: 1px solid lightgray;
+    border-bottom: 1px solid lightgray;
+}
+
+.controls {
+    position: absolute;
+    background-color: white;
+    bottom: 0;
+    width: 100%;
+    border-top: 1px solid #ccc;
+    margin-left: 5px;
+}
+
+.orfControl {
+    display: inline-block;
+    margin-left: 10px;
+    background-color: #65B6DE;
+    color: white;
+    padding: 3px 6px;
+    border-radius: 4px;
+}
+
+.orfModal {
+    display: inline;
+    margin-left:20px;
+    height: 26px;
+}
+
+.saveButton:disabled {
+    color: gray !important;
+}
+
+.selectAllNoneContainer {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    margin: 15px;
+}
+
+.selectAllNone {
+    padding: 5px;
+    cursor: pointer;
+    font-size: 11pt;
+}

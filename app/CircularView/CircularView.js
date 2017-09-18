@@ -11,12 +11,11 @@ import PositionAnnotationOnCircle from './PositionAnnotationOnCircle';
 import getAngleForPositionMidpoint from './getAngleForPositionMidpoint';
 import normalizePositionByRangeLength from 've-range-utils/normalizePositionByRangeLength';
 import getPositionFromAngle from 've-range-utils/getPositionFromAngle';
-// old imports
 import getRangeAngles from 've-range-utils/getRangeAngles';
 import Sector from 'paths-js/sector';
 
 function noop(argument) {
-    //console.log('noop!');
+
 }
 
 function toDegrees(radians) {
@@ -25,14 +24,14 @@ function toDegrees(radians) {
 
 @Cerebral({
     annotationHeight: ['annotationHeight'],
-    caretPosition: ['caretPosition'],     
-    charWidth: ['charWidth'], 
-    circularAndLinearTickSpacing: ['circularAndLinearTickSpacing'],    
-    circularViewData: ['circularViewData'],    
-    circularViewDimensions: ['circularViewDimensions'], 
-    cutsiteLabelSelectionLayer: ['cutsiteLabelSelectionLayer'],         
+    bpsPerRow: ['bpsPerRow'],
+    caretPosition: ['caretPosition'],
+    charWidth: ['charWidth'],
+    circularViewData: ['circularViewData'],
+    circularViewDimensions: ['circularViewDimensions'],
+    cutsiteLabelSelectionLayer: ['cutsiteLabelSelectionLayer'],
     cutsites: ['cutsites'],
-    orfs: ['orfData'],
+    orfs: ['orfs'],
     selectionLayer: ['selectionLayer'],
     sequenceData: ['sequenceData'],
     sequenceLength: ['sequenceLength'],
@@ -46,14 +45,24 @@ function toDegrees(radians) {
     showSequence: ['showSequence'],
     showCutsites: ['showCutsites'],
     showReverseSequence: ['showReverseSequence'],
-    spaceBetweenAnnotations: ['spaceBetweenAnnotations']     
+    spaceBetweenAnnotations: ['spaceBetweenAnnotations']
 })
 
 export default class CircularView extends React.Component {
     getNearestCursorPositionToMouseEvent(event, sequenceLength, callback) {
+
+        if (event.target.nodeName.toLowerCase() === "path" ||
+            event.target.nodeName.toLowerCase() === "circle" ||
+            event.target.className === "cutsiteLabel" ||
+            event.target.className.baseVal === "velabelText veCircularViewLabelText clickable veCutsiteLabel" ||
+            event.target.className.baseVal === "velabelText veCircularViewLabelText clickable veFeatureLabel") {
+            return;
+        }
+
         if (!event.clientX) {
             return;
         }
+
         var boundingRect = this.refs.circularView.getBoundingClientRect()
         //get relative click positions
         var clickX = (event.clientX - boundingRect.left - boundingRect.width/2)
@@ -67,7 +76,7 @@ export default class CircularView extends React.Component {
         callback({
             shiftHeld: event.shiftKey,
             nearestBP,
-            caretGrabbed
+            caretGrabbed,
         });
     }
 
@@ -86,10 +95,12 @@ export default class CircularView extends React.Component {
             showCutsites,
             showFeatures,
             showOrfs,
+            showCircular,
             annotationHeight,
             spaceBetweenAnnotations,
             annotationVisibility,
             caretPosition,
+            bpsPerRow,
             componentOverrides={}
         } = this.props;
 
@@ -118,7 +129,8 @@ export default class CircularView extends React.Component {
                 annotationHeight,
                 spaceBetweenAnnotations,
                 sequenceLength,
-                signals
+                signals,
+                bpsPerRow
             })
             // console.log('features results ' + featureResults.component)
             // update the radius, labels, and svg
@@ -145,7 +157,9 @@ export default class CircularView extends React.Component {
                 cutsites,
                 radius: radius - 4,
                 annotationHeight,
-                sequenceLength
+                sequenceLength,
+                signals,
+                bpsPerRow
             })
             //update the radius, labels, and svg
             radius+= cutsiteResults.height
@@ -160,9 +174,11 @@ export default class CircularView extends React.Component {
                 radius,
                 annotationHeight,
                 sequenceLength,
-                signals
+                signals,
+                bpsPerRow
             })
             radius+= orfResults.height
+            // orfs don't get labels since they don't have names
             annotationsSvgs.push(orfResults.component)
         }
 
@@ -184,7 +200,7 @@ export default class CircularView extends React.Component {
             });
             annotationsSvgs.push(
                 <PositionAnnotationOnCircle
-                    key='veSelectionLayer' 
+                    key='veSelectionLayer'
                     className='veSelectionLayer'
                     sAngle={ startAngle }
                     eAngle={ endAngle }
@@ -193,12 +209,12 @@ export default class CircularView extends React.Component {
                     <path
                         style={{ opacity: .4}}
                         d={ sector.path.print() }
-                        fill="blue" 
+                        fill="blue"
                         />
                 </PositionAnnotationOnCircle>
             );
             annotationsSvgs.push(
-                <Caret 
+                <Caret
                     key='caretStart'
                     caretPosition={selectionLayer.start}
                     sequenceLength={sequenceLength}
@@ -207,7 +223,7 @@ export default class CircularView extends React.Component {
                     />
             );
             annotationsSvgs.push(
-                <Caret 
+                <Caret
                     key='caretEnd'
                     caretPosition={selectionLayer.end + 1}
                     sequenceLength={sequenceLength}
@@ -216,10 +232,11 @@ export default class CircularView extends React.Component {
                     />
             );
         }
-        // nothing selected, just put a caret at posirtion 0
+        // nothing selected, just put a caret at position 0
         if (caretPosition !== -1 && !selectionLayer.selected) {
             annotationsSvgs.push(
-                <Caret 
+                <Caret
+                    key="caret"
                     caretPosition={caretPosition}
                     sequenceLength={sequenceLength}
                     innerRadius={innerRadius}
@@ -228,56 +245,62 @@ export default class CircularView extends React.Component {
             );
         }
 
-        // stop patching        
+        // stop patching
 
         annotationsSvgs.push(Labels({labels, outerRadius: radius}))
 
-        return (
-            <Draggable
-                bounds={{top: 0, left: 0, right: 0, bottom: 0}}
-                onDrag={(event) => {
-                    this.getNearestCursorPositionToMouseEvent(event, sequenceLength, signals.editorDragged)}
-                }
-                onStart={(event) => {
-                    this.getNearestCursorPositionToMouseEvent(event, sequenceLength, signals.editorDragStarted)}
-                }
-                onStop={signals.editorDragStopped}
-                >
-                <svg
-                    onClick={(event) => {
-                        this.getNearestCursorPositionToMouseEvent(event, sequenceLength, signals.editorClicked);
-                    }}
-                    style={{height: '100%'}}
-                    // width={ circularViewDimensions.width }
-                    // height={ circularViewDimensions.height }
-                    ref="circularView"
-                    className={'circularViewSvg'}
-                    viewBox={'-150 -150 300 300'} // scaling svg to crop
-                    xmlns="http://www.w3.org/2000/svg"
-                    xmlnsXlink="http://www.w3.org/1999/xlink"
+        if (showCircular) {
+            return (
+                <Draggable
+                    bounds={{top: 0, left: 0, right: 0, bottom: 0}}
+                    onDrag={(event) => {
+                        this.getNearestCursorPositionToMouseEvent(event, sequenceLength, signals.editorDragged)}
+                    }
+                    onStart={(event) => {
+                        this.getNearestCursorPositionToMouseEvent(event, sequenceLength, signals.editorDragStarted)}
+                    }
+                    onStop={signals.editorDragStopped}
                     >
-                    <defs>
-                        <marker id="codon" markerWidth="3" markerHeight="3" refx="0" refy="3" orient="auto">
-                            <circle fill="red" cx="0" cy="0" r="2"/>
-                        </marker>
-                        <marker id="arrow" markerWidth="3" markerHeight="3" refx="0" refy="3" orient="auto">
-                            <path 
-                                d="M 0 0 L 0 6 L 9 150 L 200 50" 
-                                stroke="red" 
-                                strokeWidth="3" 
-                                fill="none"  
-                                />
-                        </marker>
-                    </defs>
-                    <text x={0} y={0} fontSize={'14px'} textAnchor={'middle'} style={{dominantBaseline: 'central'}}>
-                        <tspan x={0} y={'0.6em'} dy={'-1.2em'} fontSize={'12px'}>{ sequenceName }</tspan>
-                        <tspan x={0} dy={'1.2em'} fontSize={'10px'}>{`(${ sequenceLength } bp)`}</tspan>
-                    </text>
+                    <svg
+                        onClick={(event) => {
+                            this.getNearestCursorPositionToMouseEvent(event, sequenceLength, signals.editorClicked);
+                        }}
+                        style={{height: '100%', display: 'block', width: '100%'}}
+                        // width={ circularViewDimensions.width }
+                        // height={ circularViewDimensions.height }
+                        ref="circularView"
+                        className={'circularViewSvg'}
+                        viewBox={'-150 -150 300 300'} // scaling svg to crop
+                        xmlns="http://www.w3.org/2000/svg"
+                        xmlnsXlink="http://www.w3.org/1999/xlink"
+                        >
+                        <defs>
+                            <marker id="codon" markerWidth="3" markerHeight="3" refx="0" refy="3" orient="auto">
+                                <circle fill="red" cx="0" cy="0" r="2"/>
+                            </marker>
+                            <marker id="arrow" markerWidth="3" markerHeight="3" refx="0" refy="3" orient="auto">
+                                <path
+                                    d="M 0 0 L 0 6 L 9 150 L 200 50"
+                                    stroke="red"
+                                    strokeWidth="3"
+                                    fill="none"
+                                    />
+                            </marker>
+                        </defs>
+                        <text x={0} y={0} fontSize={'14px'} textAnchor={'middle'} style={{dominantBaseline: 'central'}}>
+                            <tspan x={0} y={'0.6em'} dy={'-1.2em'} fontSize={'12px'}>{ sequenceName }</tspan>
+                            <tspan x={0} dy={'1.2em'} fontSize={'10px'}>{`(${ sequenceLength } bp)`}</tspan>
+                        </text>
 
-                    { annotationsSvgs }
+                        { annotationsSvgs }
 
-                </svg>
-            </Draggable>
+                    </svg>
+                </Draggable>
+            );
+        }
+
+        return (
+            <div style={{display: "none"}}></div>
         );
     }
 }

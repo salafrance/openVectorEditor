@@ -2,30 +2,52 @@ import getRangeAngles from './getRangeAnglesSpecial';
 import getYOffset from './getYOffset';
 import intervalTree2 from 'interval-tree2';
 import PositionAnnotationOnCircle from './PositionAnnotationOnCircle';
+import PlacePointOnCircle from './PlacePointOnCircle';
 import React from 'react';
 import noop from 'lodash/utility/noop';
 import drawArc from './drawArc.js';
 
-export default function Orfs({radius, orfs=[], annotationHeight, spaceBetweenAnnotations=2, sequenceLength, signals}) {
+export default function Orfs({radius, orfs=[], annotationHeight, spaceBetweenAnnotations=2, sequenceLength, signals, bpsPerRow}) {
+    annotationHeight = 2;
     var totalAnnotationHeight = annotationHeight + spaceBetweenAnnotations;
     var orfITree = new intervalTree2(Math.PI);
     var maxYOffset = 0;
     var svgGroup = [];
 
+    function singleClick(annotation) {
+        var row = Math.floor((annotation.start-1)/(bpsPerRow));
+        row = row <= 0 ? "0" : row;
+        signals.jumpToRow({rowToJumpTo: row});
+        signals.featureClicked({ annotation: annotation });
+    }
+
+    function doubleClick(annotation) {
+        var row = Math.floor((annotation.start-1)/(bpsPerRow));
+        row = row <= 0 ? "0" : row;
+        signals.jumpToRow({rowToJumpTo: row})
+        signals.featureClicked({ annotation: annotation });
+        signals.sidebarToggle({ sidebar: true, annotation: annotation, view: "circular" });
+        signals.adjustWidth();
+    }
+
     Object.keys(orfs).forEach(function(key, index) {
         var annotation = orfs[key]
-        // an orf has {start, end, length, internalStartCodonIndices, frame, forward, id}
         var annotationCopy = {...annotation}
-        var {startAngle, endAngle, totalAngle, centerAngle} = getRangeAngles(annotation, sequenceLength);
+        var {
+            startAngle,
+            endAngle,
+            totalAngle,
+            centerAngle
+        } = getRangeAngles(annotation, sequenceLength);
         var spansOrigin = startAngle > endAngle;
         var expandedEndAngle = spansOrigin ? endAngle + 2 * Math.PI : endAngle;
         var annotationRadius;
-        var yOffset1;
-        var yOffset2;
-        var path;
+        var yOffset1 = null;
+        var yOffset2 = null;
+        var path = null;
+        var arrowHead = null;
 
-        // frame is one of [0,1,2] 
-        // hacky fix for colors, not sure we're calculating reversed orfs right 
+        // frame is one of [0,1,2]
         var orfColor = 'red';
         if (annotationCopy.frame === 1) {
             orfColor = 'green';
@@ -57,19 +79,72 @@ export default function Orfs({radius, orfs=[], annotationHeight, spaceBetweenAnn
             maxYOffset = annotationCopy.yOffset;
         }
 
+
+        function handleClick(event) {
+            var clicks = 0;
+            var timeout;
+
+            return function() {
+                clicks += 1;
+                if (clicks === 1) {
+                    timeout = setTimeout(function() {
+                        singleClick(annotation);
+                        clicks = 0;
+                    }, 250);
+
+                } else {
+                    clearTimeout(timeout);
+                    doubleClick(annotation);
+                    clicks = 0;
+                }
+            }
+        }
+
         var codonIndices = [];
+        var endNode;
+        // we always need an end dot, figure out which end to put it on
+        if (annotationCopy.forward) {
+            endNode =  (
+                        <PlacePointOnCircle
+                            radius={ annotationRadius - annotationHeight/2 }
+                            key={ 'codon' + c + "_" + annotation.id }
+                            bpNumber={ annotation.start }
+                            totalBps = { sequenceLength }
+                            >
+                            <circle r='1.5' fill={ orfColor } stroke="none"/>
+                        </PlacePointOnCircle>
+                )
+        } else {
+            endNode =  (
+                        <PlacePointOnCircle
+                            radius={ annotationRadius - annotationHeight/2 }
+                            key={ "endNode_" + annotation.id }
+                            bpNumber={ annotation.end + 1}
+                            totalBps = { sequenceLength }
+                            >
+                            <circle r='1.5' fill={ orfColor } stroke="none"/>
+                        </PlacePointOnCircle>
+                )
+        }
+        codonIndices.push( endNode );
+
         // check for codon indices
+        // {{}} it'd be nice if you could hover or click to get the index
+        // or display them in the sidebar
         if (annotation.internalStartCodonIndices.length > 0) {
             var codons = annotation.internalStartCodonIndices;
             var node;
+
             for(var c = 0; c < codons.length; c++) {
-                node = (
-                        <g
+                node = ( // {{}} node names are confusing here
+                        <PlacePointOnCircle
+                            radius={ annotationRadius - annotationHeight/2 }
                             key={ 'codon' + c + "_" + annotation.id }
-                            transform={ 'translate(0,' + radius*-1 + ')' }
+                            bpNumber={ codons[c] + 0.5}
+                            totalBps = { sequenceLength }
                             >
                             <circle r='1.5' fill={ orfColor } stroke="none"/>
-                        </g>
+                        </PlacePointOnCircle>
                 )
                 codonIndices.push( node );
             }
@@ -77,30 +152,49 @@ export default function Orfs({radius, orfs=[], annotationHeight, spaceBetweenAnn
 
         path = drawArc({ radius: annotationRadius, height: annotationHeight, totalAngle});
 
+        // put the arrow at the beginning or the end
+        var arrowEnd = annotation.forward ? annotation.end : annotation.start;
+
+        arrowHead = (
+                        <PlacePointOnCircle
+                            radius = { annotationRadius - annotationHeight/2 }
+                            key = { 'arrow' + c + "_" + annotationCopy.id }
+                            bpNumber = { arrowEnd }
+                            totalBps = { sequenceLength }
+                            forward = { annotationCopy.forward }
+                            >
+                            <path
+                                fill = { orfColor }
+                                stroke = "none"
+                                // the arrowhead is contained in the orf,
+                                // so the very tip of the arrow is the 0/end of the orf, no overhang
+                                d = {`M 0 0 L -6 2 L -6 -2 Z`}
+                                />
+                        </PlacePointOnCircle>
+                    )
+
         svgGroup.push(
-            <g 
+            <g
                 id={annotation.id}
                 key={'Orfs' + annotation.id}
+                onClick={handleClick()}
                 >
                 <g className='Orfs clickable'>
+                    { arrowHead }
                     <PositionAnnotationOnCircle
-                        key={ 'orf' + annotation.id }
+                        key={ 'orf' + annotationCopy.id }
                         sAngle={ startAngle }
                         eAngle={ endAngle }
                         direction={ 'reverse' } // buh
                         >
                         <path
-                            onClick={ function (e) {
-                                e.stopPropagation()
-                                signals.orfClicked({annotation: annotation}) 
-                            }}
                             d={ path.print() }
                             fill="none"
                             stroke={ orfColor }
-                            strokeWidth={ annotationHeight/2 }                        
+                            strokeWidth={ annotationHeight/2 }
                             />
-                        { codonIndices } 
-                    </PositionAnnotationOnCircle>                  
+                    </PositionAnnotationOnCircle>
+                    { codonIndices }
                 </g>
             </g>
         )
@@ -112,4 +206,3 @@ export default function Orfs({radius, orfs=[], annotationHeight, spaceBetweenAnn
         height: (maxYOffset + 1) * totalAnnotationHeight,
     }
 }
-

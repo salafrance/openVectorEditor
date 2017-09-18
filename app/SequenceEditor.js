@@ -3,44 +3,74 @@ import {Decorator as Cerebral} from 'cerebral-view-react';
 import ToolBar from './ToolBar';
 import StatusBar from './StatusBar';
 import SideBar from './SideBar';
+import Clipboard from './Clipboard';
+import AddBoxIcon from 'material-ui/lib/svg-icons/content/add-box';
+import IconButton from 'material-ui/lib/icon-button';
 import styles from './sequence-editor.css';
 
+var assign = require('lodash/object/assign');
 var bindGlobalPlugin = require('combokeys/plugins/global-bind');
 var CircularView = require('./CircularView/CircularView');
-var Clipboard = require('./Clipboard');
 var Combokeys = require("combokeys");
-var combokeys;
 var RowView = require('./RowView/RowView');
+var combokeys;
 
 @Cerebral({
-    bpsPerRow: ['bpsPerRow'],    
-    embedded: ['embedded'],
-    sequenceLength: ['sequenceLength'],
-    totalRows: ['totalRows'],
-    newRandomRowToJumpTo: ['newRandomRowToJumpTo'],
-    selectedSequenceString: ['selectedSequenceString'],
+    bpsPerRow: ['bpsPerRow'],
     caretPosition: ['caretPosition'],
-    sequenceData: ['sequenceData'],
-    selectionLayer: ['selectionLayer'],
     clipboardData: ['clipboardData'],
+    cutsites: ['cutsites'],
+    cutsitesByName: ['cutsitesByName'],
+    embedded: ['embedded'],
+    history: ['history'],
+    historyIdx: ['historyIdx'],
+    newRandomRowToJumpTo: ['newRandomRowToJumpTo'],
+    orfs: ['orfs'],
+    savedIdx: ['savedIdx'],
+    selectedSequenceString: ['selectedSequenceString'],
+    searchLayers: ['searchLayers'],
+    selectionLayer: ['selectionLayer'],
+    sequenceData: ['sequenceData'],
+    sequenceLength: ['sequenceLength'],
     showCircular: ['showCircular'],
-    showLinear: ['showLinear'],
     showRow: ['showRow'],
+    showSearchBar: ['showSearchBar'],
     showSidebar: ['showSidebar'],
     sidebarType: ['sidebarType'],
-    cutsitesByName: ['cutsitesByName'],
-    orfData: ['orfData'],
+    totalRows: ['totalRows']
 })
 
 export default class SequenceEditor extends React.Component {
+
+    warn(e) {
+        var confirmationMessage = "Are you sure you want to leave this page without placing the order ?";
+        (e || window.event).returnValue = confirmationMessage;
+        return confirmationMessage;
+    }
+
+    componentWillMount() {
+        // trying to fix cross origin problem
+        this.props.sequenceData.features.forEach(function(feature) {
+            if (!feature.end || feature.end === 0) {
+                this.props.signals.updateFeature({ feature: feature, reset: true });
+            }
+        }.bind(this));
+        this.props.signals.updateHistory({ newHistory: this.props.sequenceData });
+    }
+
     componentDidMount() {
         var {
-            sequenceDataInserted,
             backspacePressed,
+            caretMoved,
+            copySelection,
+            cutSelection,
+            pasteSequenceString,
             selectAll,
             selectInverse,
+            sequenceDataInserted,
+            updateHistory,
         } = this.props.signals;
-        var self = this;
+
         combokeys = new Combokeys(document.documentElement);
         bindGlobalPlugin(combokeys);
 
@@ -49,34 +79,34 @@ export default class SequenceEditor extends React.Component {
             sequenceDataInserted({newSequenceData: {sequence: String.fromCharCode(event.charCode)}});
         });
         combokeys.bind(['left','shift+left'] , function(event) { // Handle shortcut
-            self.props.signals.caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretLeftOne'});
+            caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretLeftOne'});
         });
         combokeys.bind(['right','shift+right'] , function(event) { // Handle shortcut
-            self.props.signals.caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretRightOne'});
+            caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretRightOne'});
         });
         combokeys.bind(['up','shift+up'] , function(event) { // Handle shortcut
-            self.props.signals.caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretUpARow'});
+            caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretUpARow'});
         });
         combokeys.bindGlobal(['down','shift+down'] , function(event) { // Handle shortcut
-            self.props.signals.caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretDownARow'});
+            caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretDownARow'});
         });
         combokeys.bindGlobal(['mod+right','mod+shift+right'], function(event) { // Handle shortcut
-            self.props.signals.caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretToEndOfRow'});
+            caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretToEndOfRow'});
             event.stopPropagation();
             event.preventDefault();
         });
         combokeys.bindGlobal(['mod+left','mod+shift+left'], function(event) { // Handle shortcut
-            self.props.signals.caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretToStartOfRow'});
+            caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretToStartOfRow'});
             event.stopPropagation();
             event.preventDefault();
         });
         combokeys.bindGlobal(['mod+up','mod+shift+up'], function(event) { // Handle shortcut
-            self.props.signals.caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretToStartOfSequence'});
+            caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretToStartOfSequence'});
             event.stopPropagation();
             event.preventDefault();
         });
         combokeys.bindGlobal(['mod+down','mod+shift+down'], function(event) { // Handle shortcut
-            self.props.signals.caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretToEndOfSequence'});
+            caretMoved({shiftHeld: event.shiftKey, type: 'moveCaretToEndOfSequence'});
             event.stopPropagation();
             event.preventDefault();
         });
@@ -87,62 +117,69 @@ export default class SequenceEditor extends React.Component {
         });
         combokeys.bindGlobal('command+a', function(event) { // Handle shortcut
             selectAll();
+            event.preventDefault();
             event.stopPropagation();
         });
         combokeys.bindGlobal('command+ctrl+i', function(event) { // Handle shortcut
             selectInverse();
             event.stopPropagation();
         });
+        combokeys.bindGlobal('command+z', function(event) { // Handle shortcut
+            updateHistory({ idx: -1 });
+            event.preventDefault();
+            event.stopPropagation();
+        });
+        combokeys.bindGlobal('command+y', function(event) { // Handle shortcut
+            updateHistory({ idx: 1 });
+            event.preventDefault();
+            event.stopPropagation();
+        });
+        combokeys.bindGlobal('command+c', function(event) { // Handle shortcut
+            copySelection();
+            event.stopPropagation();
+        });
+        combokeys.bindGlobal('command+x', function(event) { // Handle shortcut
+            cutSelection();
+            event.stopPropagation();
+        });
+        // no paste, that's handled by the clipboard component only
     }
 
-    // copy and paste events are handled by a listener in the DOM element as listed below
-    handlePaste(event) {
-        var {
-            pasteSequenceString,
-        } = this.props.signals;
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.sequenceData !== prevProps.sequenceData) {
+            this.props.signals.updateHistory({ newHistory: this.props.sequenceData });
+        }
 
-        pasteSequenceString({sequenceString: event.clipboardData.getData("text/plain")});
-        event.preventDefault();
+        // warns if you try to leave page with unsaved changes
+        // ** doesn't work in firefox
+        if (this.props.savedIdx !== this.props.historyIdx) {
+            window.addEventListener("beforeunload", this.warn);
+        } else {
+            window.removeEventListener("beforeunload", this.warn);
+        }
     }
 
-    handleCopy(event) {
-        /*
-        earavina:
-        This is an async call leading to a bug
-        when copy is successful only if user copies the range twice.
-        This action assigns this.props.clipboardData after it has been passed to a system clipboard.
-        Replaced with a module used each time the user makes a selection
-        */
-        // var {
-        //     copySelection,
-        // } = this.props.signals;
-        // copySelection();
-
-        let val = this.props.clipboardData;
-        // console.log(val);
-        event.clipboardData.setData("application/json", JSON.stringify(val));
-        event.clipboardData.setData("text/plain", val.sequence);
-        event.preventDefault();
-    }
-
-    componentWillUnmount() {
-        combokeys.detach()
+    openAddFeatureDisplay() {
+        this.setState({ editFeature: -1, selectedFeatures: [] });
+        this.props.signals.addFeatureModalDisplay();
+        this.props.signals.sidebarToggle({ sidebar: true });
+        this.props.signals.adjustWidth();
     }
 
     render() {
         var {
+            clipboardData,
+            cutsites,
             embedded,
+            orfs,
             selectedSequenceString,
+            selectionLayer,
             sequenceData,
             showCircular,
             showRow,
+            showSearchBar,
             showSidebar,
-            sidebarType,
-            cutsitesByName,
-            orfData,
-            showRestrictionEnzymeManager,
-            readOnly,
-            clipboardData
+            sidebarType
         } = this.props;
 
         var table;
@@ -150,68 +187,84 @@ export default class SequenceEditor extends React.Component {
         // we need this position relative to place the controller bar in the sidebar
         Object.assign(sidebarStyle, {minWidth: '580px', overflow: 'hidden', borderRight: '1px solid #ccc', position: 'relative'}, (showSidebar) ? {} : {display: 'none'})
 
+        // add feature button that appears outside of sidebar when there's a selectionLayer
+        var addFeatureButton = <div></div>;
+        if (!showSidebar && selectionLayer.start > 0) {
+            addFeatureButton =
+                <IconButton
+                    style={{position:'absolute', bottom:'115px', left:'5px', zIndex:'500', backgroundColor:'rgba(255,255,255,0.5)'}}
+                    onTouchTap={this.openAddFeatureDisplay.bind(this)}
+                    tooltip="add feature"
+                    tooltipPosition="top-center">
+                    <AddBoxIcon />
+                </IconButton>
+        }
+
         // check if we have just circ or just row and pad it out a little
         // using the bitwise xor here might be a little sketchy
-        // {{}} currently not working
         var oneViewOnly = !showSidebar && (showCircular ^ showRow)
         var circularStyle = {}
         if(!showCircular) circularStyle = {display: 'none'}
-        if (oneViewOnly) {
-            circularStyle = Object.assign(circularStyle, {margin: '0 15%'})
-            // rowStyle = Object.assign(rowStyle, {margin: '0 15%'})
-            console.log("added margin to circular")
-        }
         var rowStyle = {}
-        if(embedded || !showRow) rowStyle = {display: 'none'}
+        if(!showRow) rowStyle = {display: 'none'}
 
-        // if(showCircular && showRow) this.setState({ bpsPerRow: 45 })
 
+        var borderStyle = 'none';
+        if (showSearchBar) {
+            borderStyle = '1px solid rgb(232,232,232)';
+        }
         // this should probably move to the sidebar file
         if (sidebarType === 'Features') {
             table = (
                 <SideBar
-                   annotations={sequenceData.features}
-                   annotationType={sidebarType}
-                   />
+                    openAddFeatureDisplay={this.openAddFeatureDisplay}
+                    annotations={sequenceData.features}
+                    annotationType={sidebarType}
+                    />
             );
         } else if (sidebarType === 'Cutsites') {
             table = (
                 <SideBar
-                   annotations={cutsitesByName}
-                   annotationType={sidebarType}
-                   />
+                    openAddFeatureDisplay={this.openAddFeatureDisplay}
+                    annotations={cutsites}
+                    annotationType={sidebarType}
+                    />
             );
         } else if (sidebarType === 'Orfs') {
             table = (
                 <SideBar
-                   annotations={orfData}
+                   annotations={orfs}
                    annotationType={sidebarType}
                    />
             );
         }
 
+        var toolbarStyle = '0px';
+        if (showSearchBar) {
+            toolbarStyle = '60px';
+        }
+
         return (
             <div ref="sequenceEditor" className={styles.app}>
-                <Clipboard
-                    value={JSON.stringify(clipboardData)}
-                    onCopy={this.handleCopy.bind(this)}
-                    onPaste={this.handlePaste.bind(this)}
-                />
 
-                <div className={styles.head}>
+                <Clipboard />
+
+                <div className={styles.head} style={{marginBottom: toolbarStyle}}>
                     <ToolBar />
                 </div>
 
-                <div className={styles.content} id="allViews">
+                <div className={styles.content} id="allViews" style={{borderTop: borderStyle}}>
                     <div className={styles.sideBarSlot} id="sideBar" style={ sidebarStyle }>
                       {table}
                     </div>
 
+                    { addFeatureButton }
+
                     <div className={styles.circularViewSlot} id="circularView" style={ circularStyle }>
-                        <CircularView />
+                        <CircularView showCircular={showCircular}/>
                     </div>
                     <div className={styles.rowViewSlot} id="rowView" style={ rowStyle }>
-                        <RowView sequenceData={sequenceData} />
+                        <RowView showRow={showRow} sequenceData={sequenceData} />
                     </div>
                 </div>
 

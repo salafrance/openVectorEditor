@@ -2,7 +2,7 @@ var normalizePositionByRangeLength = require('ve-range-utils/normalizePositionBy
 var getRangeLength = require('ve-range-utils/getRangeLength');
 
 export default function handleEditorDragged({input: {
-    nearestBP,
+    nearestBP, resize
 }, state, output}) {
     var {
         sequenceLength, caretPosition, selectionLayer, sequenceData: {
@@ -71,7 +71,7 @@ export default function handleEditorDragged({input: {
     // } else {
 
     // }
-    // // if (selectionLayer.selected && selectionLayer.start ) 
+    // // if (selectionLayer.selected && selectionLayer.start )
 
     // //note this method relies on variables that are set in the handleEditorDragStart method!
     // editorBeingDragged = true;
